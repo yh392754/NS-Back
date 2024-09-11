@@ -10,9 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,4 +56,13 @@ public class UserController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @GetMapping(value = "/api/loginTest")
+    public ResponseEntity<Object> loginTest(Principal principal) {
+        Map<String, String> testReturn = new HashMap<>();
+        testReturn.put("testReturn", principal.getName());
+        return new ResponseEntity<>(testReturn, HttpStatus.OK);
+    }
+
+
 }
