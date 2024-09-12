@@ -44,4 +44,12 @@ public class UserService implements UserDetailsService {
 
         return new CustomUserDetails(user);
     }
+
+    public User findUserByStudentNumber(String studentNumber) {
+        User user = userRepository.findByStudentNumber(studentNumber);
+        if (user == null) {
+            throw new UsernameNotFoundException(studentNumber);
+        }
+        return user;
+    }
 }
