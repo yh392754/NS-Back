@@ -26,7 +26,7 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "student_number", nullable = false, unique = true)
     private String studentNumber;
 
     @Column(nullable = false)
@@ -46,10 +46,12 @@ public class User {
     private boolean userRentalStatus;
 
     public static User createUser(UserRegisterDto userRegisterDto, PasswordEncoder passwordEncoder){
+        String password = passwordEncoder.encode(userRegisterDto.getPassword());
+
         User user = User.builder()
                 .studentNumber(userRegisterDto.getStudentNumber())
                 .name(userRegisterDto.getName())
-                .password(userRegisterDto.getPassword())
+                .password(password)
                 .phoneNumber(userRegisterDto.getPhoneNumber())
                 .email(userRegisterDto.getEmail())
                 .role(Role.USER)
