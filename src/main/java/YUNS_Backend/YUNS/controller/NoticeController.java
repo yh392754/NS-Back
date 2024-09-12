@@ -36,4 +36,11 @@ public class NoticeController {
         return ResponseEntity.ok(createdNoticeDto);
     }
 
+    @PutMapping("/api/admin/notices/{id}/update")
+    public ResponseEntity<NoticeDto> updateNotice(@PathVariable Long id, @RequestBody NoticeDto noticeDto) {
+        NoticeDto updatedNoticeDto = noticeService.updateNotice(id, noticeDto.getTitle(), noticeDto.getContent());
+        return updatedNoticeDto != null ? ResponseEntity.ok(updatedNoticeDto) : ResponseEntity.notFound().build();
+    }
+
+
 }
