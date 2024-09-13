@@ -46,6 +46,26 @@ public class QuestionService {
         return convertToDto(savedQuestion);
     }
 
+    // 질문 수정 및 DTO 반환 (빌더 패턴 사용)
+    public Optional<QuestionDto> updateQuestion(Long questionId, QuestionDto dto) {
+        return questionRepository.findById(questionId).map(existingQuestion -> {
+            // 기존 질문을 빌더 패턴으로 수정
+            Question updatedQuestion = Question.builder()
+                    .questionId(existingQuestion.getQuestionId())  // 기존 ID 유지
+                    .title(dto.getTitle() != null ? dto.getTitle() : existingQuestion.getTitle())  // 수정된 제목 또는 기존 제목
+                    .content(dto.getContent() != null ? dto.getContent() : existingQuestion.getContent())  // 수정된 내용 또는 기존 내용
+                    .imageUrl(dto.getImageUrl() != null ? dto.getImageUrl() : existingQuestion.getImageUrl())  // 수정된 이미지 또는 기존 이미지
+                    .date(existingQuestion.getDate())  // 기존 날짜 유지
+                    .state(existingQuestion.isState())  // 기존 상태 유지
+                    .answer(existingQuestion.getAnswer())  // 기존 답변 유지
+                    .user(existingQuestion.getUser())  // 기존 작성자 유지
+                    .build();
+
+            Question savedQuestion = questionRepository.save(updatedQuestion);
+            return convertToDto(savedQuestion);
+        });
+    }
+
     // 엔티티를 DTO로 변환
     private QuestionDto convertToDto(Question question) {
         return QuestionDto.builder()

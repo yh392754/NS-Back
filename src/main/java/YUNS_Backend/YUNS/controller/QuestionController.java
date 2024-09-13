@@ -68,4 +68,46 @@ public class QuestionController {
         return ResponseEntity.ok(createdQuestion);
     }
 
+    // 4. 1:1 문의 수정 (PUT, /api/questions/{id}/update) - 작성자만 가능
+    @PutMapping("/api/questions/{id}/update")
+    public ResponseEntity<QuestionDto> updateQuestion(@PathVariable Long id,
+                                                      @RequestParam(value = "title", required = false) String title,
+                                                      @RequestParam(value = "content", required = false) String content,
+                                                      @RequestParam(value = "image", required = false) MultipartFile image,
+                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Optional<QuestionDto> question = questionService.getQuestionById(id);
+
+        // 작성자 검증 - 로그인한 사용자와 글 작성자의 학번(studentNumber)을 비교
+        if (question.isPresent()) {
+            String loggedInStudentNumber = userDetails.getUsername();  // 로그인한 사용자의 학번
+            String questionOwnerStudentNumber = question.get().getUserStudentNumber();  // 글 작성자의 학번
+
+            // 작성자가 아니면 403 에러 반환
+            if (!loggedInStudentNumber.equals(questionOwnerStudentNumber)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();  // 작성자가 아니면 권한 거부
+            }
+        }
+
+        // 이미지 업로드 처리
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            imageUrl = s3Service.uploadFile(image);  // S3에 이미지 업로드
+        }
+
+        // QuestionDto 업데이트
+        QuestionDto updatedDto = QuestionDto.builder()
+                .title(title != null ? title : question.get().getTitle())
+                .content(content != null ? content : question.get().getContent())
+                .imageUrl(imageUrl != null ? imageUrl : question.get().getImageUrl())
+                .date(question.get().getDate())
+                .state(question.get().isState())
+                .answer(question.get().getAnswer())
+                .userStudentNumber(question.get().getUserStudentNumber())  // userStudentNumber로 저장
+                .build();
+
+        Optional<QuestionDto> updatedQuestion = questionService.updateQuestion(id, updatedDto);
+        return updatedQuestion.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 }
