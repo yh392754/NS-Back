@@ -66,6 +66,11 @@ public class QuestionService {
         });
     }
 
+    // 질문 삭제
+    public void deleteQuestion(Long questionId) {
+        questionRepository.deleteById(questionId);
+    }
+
     // 엔티티를 DTO로 변환
     private QuestionDto convertToDto(Question question) {
         return QuestionDto.builder()

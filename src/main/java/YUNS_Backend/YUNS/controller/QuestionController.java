@@ -110,4 +110,32 @@ public class QuestionController {
         return updatedQuestion.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // 5. 1:1 문의 삭제 (DELETE, /api/questions/{id}/delete) - 작성자만 가능
+    @DeleteMapping("/api/questions/{id}/delete")
+    public ResponseEntity<String> deleteQuestion(@PathVariable Long id,
+                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Optional<QuestionDto> question = questionService.getQuestionById(id);
+
+        // 문의가 없으면 404 응답 반환
+        if (question.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("문의가 존재하지 않습니다.");  // 404 응답
+        }
+
+        // 작성자 검증 - 로그인한 사용자와 글 작성자의 학번(studentNumber)을 비교
+        if (question.isPresent()) {
+            String loggedInStudentNumber = userDetails.getUsername();  // 로그인한 사용자의 학번
+            String questionOwnerStudentNumber = question.get().getUserStudentNumber();  // 글 작성자의 학번
+
+            // 작성자가 아니면 403 에러 반환
+            if (!loggedInStudentNumber.equals(questionOwnerStudentNumber)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();  // 작성자가 아니면 권한 거부
+            }
+        }
+
+        // 작성자가 맞으면 삭제 진행
+        questionService.deleteQuestion(id);
+        return ResponseEntity.ok("문의가 성공적으로 삭제되었습니다.");
+    }
+
 }
