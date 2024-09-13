@@ -31,6 +31,21 @@ public class QuestionService {
         return questionRepository.findById(questionId).map(this::convertToDto);
     }
 
+    // 질문 생성 및 DTO 반환
+    public QuestionDto createQuestion(QuestionDto dto, User user) {
+        Question question = Question.builder()
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .imageUrl(dto.getImageUrl())
+                .state(false)
+                .date(LocalDateTime.now())
+                .user(user)  // 작성자 정보 추가
+                .build();
+
+        Question savedQuestion = questionRepository.save(question);
+        return convertToDto(savedQuestion);
+    }
+
     // 엔티티를 DTO로 변환
     private QuestionDto convertToDto(Question question) {
         return QuestionDto.builder()
@@ -44,4 +59,6 @@ public class QuestionService {
                 .userStudentNumber(question.getUser().getStudentNumber())  // 작성자의 학번 추가
                 .build();
     }
+
+
 }

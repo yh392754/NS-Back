@@ -39,4 +39,33 @@ public class QuestionController {
         return question.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // 3. 1:1 문의 작성 (POST, /api/questions/create) - 로그인 필요
+    @PostMapping("/api/questions/create")
+    public ResponseEntity<QuestionDto> createQuestion(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                      @RequestParam("title") String title,
+                                                      @RequestParam("content") String content,
+                                                      @RequestParam(value = "image", required = false) MultipartFile image) {
+
+        String studentNumber = userDetails.getUsername();
+        User user = userService.findUserByStudentNumber(studentNumber);
+
+        // 이미지 업로드 처리
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            imageUrl = s3Service.uploadFile(image);  // S3에 이미지 업로드
+        }
+
+        // QuestionDto 생성
+        QuestionDto dto = QuestionDto.builder()
+                .title(title)
+                .content(content)
+                .imageUrl(imageUrl)
+                .date(LocalDateTime.now())
+                .state(false)
+                .build();
+
+        QuestionDto createdQuestion = questionService.createQuestion(dto, user);
+        return ResponseEntity.ok(createdQuestion);
+    }
+
 }
