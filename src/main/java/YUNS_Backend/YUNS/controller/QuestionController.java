@@ -32,4 +32,11 @@ public class QuestionController {
         return ResponseEntity.ok(questionService.getAllQuestions());
     }
 
+    // 2. 1:1 문의 세부 조회 (GET, /api/questions/{id}/read) - 로그인 불필요
+    @GetMapping("/api/questions/{id}/read")
+    public ResponseEntity<QuestionDto> getQuestionById(@PathVariable Long id) {
+        Optional<QuestionDto> question = questionService.getQuestionById(id);
+        return question.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 }

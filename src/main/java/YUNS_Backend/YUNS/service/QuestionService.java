@@ -26,6 +26,11 @@ public class QuestionService {
         return questions.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
+    // 특정 질문을 DTO로 반환
+    public Optional<QuestionDto> getQuestionById(Long questionId) {
+        return questionRepository.findById(questionId).map(this::convertToDto);
+    }
+
     // 엔티티를 DTO로 변환
     private QuestionDto convertToDto(Question question) {
         return QuestionDto.builder()
