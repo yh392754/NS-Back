@@ -57,12 +57,5 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/api/loginTest")
-    public ResponseEntity<Object> loginTest(Principal principal) {
-        Map<String, String> testReturn = new HashMap<>();
-        testReturn.put("testReturn", principal.getName());
-        return new ResponseEntity<>(testReturn, HttpStatus.OK);
-    }
-
 
 }
