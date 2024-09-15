@@ -11,6 +11,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @Transactional
@@ -51,5 +53,14 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException(studentNumber);
         }
         return user;
+    }
+
+    public void deleteUser(Long userId){
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            userRepository.deleteById(userId);
+        } else {
+            throw new IllegalArgumentException("user가 존재하지 않습니다.");
+        }
     }
 }

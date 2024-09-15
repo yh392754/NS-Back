@@ -1,6 +1,7 @@
 package YUNS_Backend.YUNS.config;
 
 import YUNS_Backend.YUNS.custom.CustomAuthenticationSuccessHandler;
+import YUNS_Backend.YUNS.custom.CustomLogoutSuccessHandler;
 import YUNS_Backend.YUNS.custom.LoginAuthenticationFilter;
 import YUNS_Backend.YUNS.entity.Role;
 import YUNS_Backend.YUNS.service.UserService;
@@ -33,10 +34,12 @@ public class SecurityConfig {
     @Autowired
     UserService userService;
 
+    @Autowired
+    CustomLogoutSuccessHandler customLogoutSuccessHandler;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // 추가된 코드
         AuthenticationManagerBuilder sharedObject = http.getSharedObject(AuthenticationManagerBuilder.class);
 
         sharedObject.userDetailsService(userService);
@@ -49,14 +52,18 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(
                         (auth) -> auth
-                                .requestMatchers("/api/register", "/api/users/**", "/api/login", "/api/logout").permitAll()
+                                .requestMatchers("/api/register", "/api/login").permitAll()
                                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                                .requestMatchers("/api/questions/**", "api/rentals/create", "api/extends/create", "/api/noticeList/**").authenticated()
+                                .requestMatchers("/api/questions/**", "api/rentals/create", "api/extends/create", "/api/noticeList/**", "/api/logout", "/api/users/**").authenticated()
                                 .anyRequest().permitAll()
                 )
                 .addFilterAt(
                         this.abstractAuthenticationProcessingFilter(authenticationManager, this.authenticationSuccessHandler()),
-                                UsernamePasswordAuthenticationFilter.class);
+                                UsernamePasswordAuthenticationFilter.class)
+                .logout(logout -> logout
+                        .logoutUrl("/api/logout")
+                        .logoutSuccessHandler(customLogoutSuccessHandler)
+                );
 
         return http.build();
     }
@@ -81,7 +88,6 @@ public class SecurityConfig {
         return source;
     }
 
-    // 추가된 코드
     public AbstractAuthenticationProcessingFilter abstractAuthenticationProcessingFilter(final AuthenticationManager authenticationManager, final AuthenticationSuccessHandler authenticationSuccessHandler) {
 
         return new LoginAuthenticationFilter(
