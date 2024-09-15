@@ -10,9 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.HashMap;
@@ -40,10 +38,7 @@ public class UserController {
             User user = User.createUser(userRegisterDto, passwordEncoder);
             userService.registerUser(user);
         }catch (IllegalStateException e){
-            Map<String, String> error = new HashMap<>();
-            error.put("message", e.getMessage());
-
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }catch (Exception e){ //서비스에서 에러 발생시 500에러 반환
             Map<String, String> error = new HashMap<>();
             error.put("message", "회원가입에 실패했습니다");
@@ -57,5 +52,27 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @DeleteMapping("/api/users/{userId}")
+    public @ResponseBody ResponseEntity unRegister(@PathVariable("userId") Long userId, Principal principal){
+        String studentNumber = principal.getName();
+        User user = userService.findUserByStudentNumber(studentNumber);
 
+        if(userId != user.getUserId()){
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "해당 요청에 대한 권한이 없습니다");
+
+            return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        }
+
+        try{
+            userService.deleteUser(userId);
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "회원탈퇴가 완료되었습니다");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

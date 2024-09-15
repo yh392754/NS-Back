@@ -52,9 +52,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(
                         (auth) -> auth
-                                .requestMatchers("/api/register", "/api/users/**", "/api/login").permitAll()
+                                .requestMatchers("/api/register", "/api/login").permitAll()
                                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                                .requestMatchers("/api/questions/**", "api/rentals/create", "api/extends/create", "/api/noticeList/**", "/api/logout").authenticated()
+                                .requestMatchers("/api/questions/**", "api/rentals/create", "api/extends/create", "/api/noticeList/**", "/api/logout", "/api/users/**").authenticated()
                                 .anyRequest().permitAll()
                 )
                 .addFilterAt(
