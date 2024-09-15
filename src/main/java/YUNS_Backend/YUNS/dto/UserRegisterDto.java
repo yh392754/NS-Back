@@ -2,6 +2,7 @@ package YUNS_Backend.YUNS.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
@@ -15,8 +16,8 @@ public class UserRegisterDto {
 
 
     @NotBlank(message = "비밀번호는 필수 입력 값입니다")
+    @Size(min = 10, message = "비밀번호는 최소 10자 이상이어야 합니다.")
     private String password;
-    //비밀번호 제한??
 
     @NotBlank(message = "휴대폰 번호는 필수 입력 값입니다")
     private String phoneNumber;
