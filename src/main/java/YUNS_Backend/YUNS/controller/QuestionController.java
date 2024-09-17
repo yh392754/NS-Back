@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -137,5 +140,15 @@ public class QuestionController {
         questionService.deleteQuestion(id);
         return ResponseEntity.ok("문의가 성공적으로 삭제되었습니다.");
     }
+
+    // 6. 1:1 문의 조회 - 로그인한 사용자의 문의만 조회 (GET, /api/my/rentals)
+    @GetMapping("/api/my/questions")
+    public ResponseEntity<List<QuestionDto>> getMyQuestions(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        String studentNumber = userDetails.getUsername();
+        List<QuestionDto> myQuestions = questionService.getQuestionsByStudentNumber(studentNumber);
+
+        return ResponseEntity.ok(myQuestions);
+    }
+
 
 }

@@ -86,4 +86,12 @@ public class QuestionService {
     }
 
 
+
+    public List<QuestionDto> getQuestionsByStudentNumber(String studentNumber) {
+        return questionRepository.findByUser_StudentNumber(studentNumber)
+                .stream()
+                .map(Question.QuestionMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
 }
