@@ -35,14 +35,14 @@ public class QuestionController {
         return ResponseEntity.ok(questionService.getAllQuestions());
     }
 
-    // 2. 1:1 문의 세부 조회 (GET, /api/questions/{id}/read) - 로그인 불필요
+    // 1:1 문의 세부 조회
     @GetMapping("/api/questions/{id}/read")
     public ResponseEntity<QuestionDto> getQuestionById(@PathVariable Long id) {
         Optional<QuestionDto> question = questionService.getQuestionById(id);
         return question.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // 3. 1:1 문의 작성 (POST, /api/questions/create) - 로그인 필요
+    // 1:1 문의 작성
     @PostMapping("/api/questions/create")
     public ResponseEntity<QuestionDto> createQuestion(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                       @RequestParam("title") String title,
@@ -71,7 +71,7 @@ public class QuestionController {
         return ResponseEntity.ok(createdQuestion);
     }
 
-    // 4. 1:1 문의 수정 (PUT, /api/questions/{id}/update) - 작성자만 가능
+    // 1:1 문의 수정
     @PutMapping("/api/questions/{id}/update")
     public ResponseEntity<QuestionDto> updateQuestion(@PathVariable Long id,
                                                       @RequestParam(value = "title", required = false) String title,
@@ -81,14 +81,15 @@ public class QuestionController {
 
         Optional<QuestionDto> question = questionService.getQuestionById(id);
 
-        // 작성자 검증 - 로그인한 사용자와 글 작성자의 학번(studentNumber)을 비교
+        // 작성자 검증 - 로그인한 사용자가 관리자이거나 글 작성자와 동일한 학번인지 확인
         if (question.isPresent()) {
-            String loggedInStudentNumber = userDetails.getUsername();  // 로그인한 사용자의 학번
-            String questionOwnerStudentNumber = question.get().getUserStudentNumber();  // 글 작성자의 학번
+            String loggedInStudentNumber = userDetails.getUsername();
+            String questionOwnerStudentNumber = question.get().getUserStudentNumber();
 
-            // 작성자가 아니면 403 에러 반환
-            if (!loggedInStudentNumber.equals(questionOwnerStudentNumber)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();  // 작성자가 아니면 권한 거부
+            // 작성자가 아니고 관리자가 아니라면 403 에러 반환
+            if (!loggedInStudentNumber.equals(questionOwnerStudentNumber) &&
+                    !userDetails.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ADMIN"))) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
         }
 
@@ -113,7 +114,7 @@ public class QuestionController {
         return updatedQuestion.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // 5. 1:1 문의 삭제 (DELETE, /api/questions/{id}/delete) - 작성자만 가능
+    // 1:1 문의 삭제
     @DeleteMapping("/api/questions/{id}/delete")
     public ResponseEntity<String> deleteQuestion(@PathVariable Long id,
                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -125,29 +126,46 @@ public class QuestionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("문의가 존재하지 않습니다.");  // 404 응답
         }
 
-        // 작성자 검증 - 로그인한 사용자와 글 작성자의 학번(studentNumber)을 비교
+        // 작성자 검증 - 로그인한 사용자가 관리자이거나 글 작성자와 동일한 학번인지 확인
         if (question.isPresent()) {
             String loggedInStudentNumber = userDetails.getUsername();  // 로그인한 사용자의 학번
             String questionOwnerStudentNumber = question.get().getUserStudentNumber();  // 글 작성자의 학번
 
-            // 작성자가 아니면 403 에러 반환
-            if (!loggedInStudentNumber.equals(questionOwnerStudentNumber)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();  // 작성자가 아니면 권한 거부
+            // 작성자가 아니고 관리자가 아니라면 403 에러 반환
+            if (!loggedInStudentNumber.equals(questionOwnerStudentNumber) &&
+                    !userDetails.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ADMIN"))) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();  // 권한 거부
             }
         }
 
-        // 작성자가 맞으면 삭제 진행
+        // 작성자가 맞거나 관리자일 경우 삭제 진행
         questionService.deleteQuestion(id);
         return ResponseEntity.ok("문의가 성공적으로 삭제되었습니다.");
     }
 
-    // 6. 1:1 문의 조회 - 로그인한 사용자의 문의만 조회 (GET, /api/my/rentals)
+    // 1:1 문의 조회
     @GetMapping("/api/my/questions")
     public ResponseEntity<List<QuestionDto>> getMyQuestions(@AuthenticationPrincipal CustomUserDetails userDetails) {
         String studentNumber = userDetails.getUsername();
         List<QuestionDto> myQuestions = questionService.getQuestionsByStudentNumber(studentNumber);
 
         return ResponseEntity.ok(myQuestions);
+    }
+
+    // 1:1 문의 답변 작성
+    @PostMapping("/api/admin/userquestions/create")
+    public ResponseEntity<Map<String, String>> createAnswer(@RequestBody Map<String, Object> request) {
+        Long questionId = Long.valueOf(request.get("questionId").toString());
+        String answer = request.get("answer").toString();
+
+        Optional<QuestionDto> updatedQuestion = questionService.answerQuestion(questionId, answer);
+        if (updatedQuestion.isPresent()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("answer", updatedQuestion.get().getAnswer());
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // 해당 질문이 없으면 404 응답
+        }
     }
 
 

@@ -85,6 +85,24 @@ public class QuestionService {
                 .build();
     }
 
+    public Optional<QuestionDto> answerQuestion(Long questionId, String answer) {
+        return questionRepository.findById(questionId).map(existingQuestion -> {
+            // 빌더 패턴을 사용하여 기존 질문 객체를 기반으로 새로운 객체 생성
+            Question updatedQuestion = Question.builder()
+                    .questionId(existingQuestion.getQuestionId())
+                    .title(existingQuestion.getTitle())
+                    .content(existingQuestion.getContent())
+                    .date(existingQuestion.getDate())
+                    .state(true) // 답변 상태를 완료로 변경
+                    .answer(answer) // 답변 추가
+                    .imageUrl(existingQuestion.getImageUrl())
+                    .user(existingQuestion.getUser())
+                    .build();
+
+            Question savedQuestion = questionRepository.save(updatedQuestion);
+            return convertToDto(savedQuestion);
+        });
+    }
 
 
     public List<QuestionDto> getQuestionsByStudentNumber(String studentNumber) {
