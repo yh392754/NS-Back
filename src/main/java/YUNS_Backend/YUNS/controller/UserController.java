@@ -29,7 +29,7 @@ public class UserController {
         //입력된 값에 이상이 있을 경우 400에러 반환
         if(bindingResult.hasErrors()){
             Map<String, String> error = new HashMap<>();
-            error.put("message", "회원가입에 실패했습니다");
+            error.put("message", "잘못된 입력값이 있습니다.");
 
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
