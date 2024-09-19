@@ -1,12 +1,21 @@
 package YUNS_Backend.YUNS.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import YUNS_Backend.YUNS.dto.NotebookDto;
+import YUNS_Backend.YUNS.dto.UserRegisterDto;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 
+@Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Notebook {
 
     @Id
@@ -28,4 +37,17 @@ public class Notebook {
 
     @Column(nullable = true)
     private String notebookImgUrl;
+
+    public static Notebook createNotebook(NotebookDto notebookDto, String imgUrl){
+
+        Notebook notebook = Notebook.builder()
+                .model(notebookDto.getModel())
+                .manufactureDate(notebookDto.getManufactureDate())
+                .operatingSystem(notebookDto.getOs())
+                .notebookImgUrl(imgUrl)
+                .rentalStatus(false)
+                .build();
+
+        return notebook;
+    }
 }
