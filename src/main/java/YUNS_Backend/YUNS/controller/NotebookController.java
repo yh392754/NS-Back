@@ -27,7 +27,7 @@ public class NotebookController {
             imageUrl = s3Service.uploadFile(notebookDto.getImage());
         }
 
-
+        Long notebookId = notebookService.saveNotebook(notebookDto, imageUrl);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "성공적으로 등록이 완료되었습니다.");
