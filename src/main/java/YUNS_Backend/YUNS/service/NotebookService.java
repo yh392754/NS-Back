@@ -26,4 +26,9 @@ public class NotebookService {
         Notebook notebook = notebookRepository.findByNotebookId(notebookId).orElseThrow(EntityNotFoundException::new);
         notebook.updateNotebook(notebookDto, imgUrl);
     }
+
+    public void deleteNotebook(Long notebookId){
+        Notebook notebook = notebookRepository.findByNotebookId(notebookId).orElseThrow(EntityNotFoundException::new);
+        notebookRepository.delete(notebook);
+    }
 }

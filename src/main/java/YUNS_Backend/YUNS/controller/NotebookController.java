@@ -56,4 +56,20 @@ public class NotebookController {
 
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping(value = "/api/admin/notebooks/{notebookId}/delete")
+    public ResponseEntity<Object> register(@PathVariable("notebookId") Long notebookId) {
+        Map<String, String> response = new HashMap<>();
+
+        try{
+            notebookService.deleteNotebook(notebookId);
+        }catch (EntityNotFoundException e){
+            response.put("message", "notebookId 정보가 유효하지 않습니다.");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        response.put("message", "성공적으로 삭제가 완료되었습니다.");
+
+        return ResponseEntity.ok(response);
+    }
 }
