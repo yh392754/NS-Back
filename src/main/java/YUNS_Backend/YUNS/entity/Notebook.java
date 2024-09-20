@@ -50,4 +50,11 @@ public class Notebook {
 
         return notebook;
     }
+
+    public void updateNotebook(NotebookDto notebookDto, String imgUrl){
+        this.model = notebookDto.getModel();
+        this.manufactureDate = notebookDto.getManufactureDate();
+        this.operatingSystem = notebookDto.getOs();
+        this.notebookImgUrl = imgUrl;
+    }
 }
