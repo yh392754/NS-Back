@@ -1,5 +1,6 @@
 package YUNS_Backend.YUNS.custom;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,6 +10,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -18,6 +20,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().println("성공");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(
+                Map.of("message", "로그인되었습니다")
+        ));
     }
 }

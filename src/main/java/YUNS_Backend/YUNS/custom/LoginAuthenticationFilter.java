@@ -19,7 +19,6 @@ import org.springframework.security.web.context.RequestAttributeSecurityContextR
 
 import java.io.IOException;
 
-@Slf4j
 public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     public LoginAuthenticationFilter(final String defaultFilterProcessesUrl,
@@ -51,9 +50,6 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingF
         ServletInputStream inputStream = request.getInputStream();
 
         LoginRequestDto loginRequestDto = new ObjectMapper().readValue(inputStream, LoginRequestDto.class);
-
-        log.info("studentNumber : "+loginRequestDto.studentNumber);
-        log.info("password : "+loginRequestDto.password);
 
         return this.getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
                 loginRequestDto.studentNumber,
