@@ -2,7 +2,9 @@ package YUNS_Backend.YUNS.dto;
 
 import YUNS_Backend.YUNS.entity.RentalStatus;
 import com.querydsl.core.annotations.QueryProjection;
+import lombok.Getter;
 
+@Getter
 public class NotebookListDto {
     long notebookId;
     String model;

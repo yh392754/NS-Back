@@ -1,8 +1,10 @@
 package YUNS_Backend.YUNS.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class NotebookFilterDto {
     //사용자가 선택한 필터(크기/모델/선택안함)
     String filterBy;
