@@ -38,6 +38,9 @@ public class Notebook {
     @Column(nullable = true)
     private String notebookImgUrl;
 
+    @Column(nullable = false)
+    private int size;
+
     public static Notebook createNotebook(NotebookDto notebookDto, String imgUrl){
 
         Notebook notebook = Notebook.builder()
@@ -46,6 +49,7 @@ public class Notebook {
                 .operatingSystem(notebookDto.getOs())
                 .notebookImgUrl(imgUrl)
                 .rentalStatus(RentalStatus.AVAILABLE)
+                .size(notebookDto.getSize())
                 .build();
 
         return notebook;
@@ -56,5 +60,6 @@ public class Notebook {
         this.manufactureDate = notebookDto.getManufactureDate();
         this.operatingSystem = notebookDto.getOs();
         this.notebookImgUrl = imgUrl;
+        this.size = notebookDto.getSize();
     }
 }

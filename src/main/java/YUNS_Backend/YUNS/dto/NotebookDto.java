@@ -12,4 +12,5 @@ public class NotebookDto {
     private LocalDate manufactureDate;
     private String os;
     private MultipartFile image;
+    private int size;
 }
