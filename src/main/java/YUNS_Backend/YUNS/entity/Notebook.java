@@ -33,6 +33,7 @@ public class Notebook {
     private String operatingSystem;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private RentalStatus rentalStatus;
 
     @Column(nullable = true)
