@@ -1,16 +1,23 @@
 package YUNS_Backend.YUNS.controller;
 
 import YUNS_Backend.YUNS.dto.NotebookDto;
+import YUNS_Backend.YUNS.dto.NotebookFilterDto;
+import YUNS_Backend.YUNS.dto.NotebookListDto;
 import YUNS_Backend.YUNS.service.NotebookService;
 import YUNS_Backend.YUNS.service.S3Service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,5 +78,29 @@ public class NotebookController {
         response.put("message", "성공적으로 삭제가 완료되었습니다.");
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(value = {"api/notebooks/read", "api/notebooks/read/{page}"})
+    public ResponseEntity<Object> register(NotebookFilterDto notebookFilterDto, @PathVariable("page") Optional<Integer> page) {
+        System.out.println("NotebookFilterDto :"+notebookFilterDto.getFilterBy());
+        System.out.println("NotebookFilterDto :"+notebookFilterDto.getSelectd());
+        System.out.println("NotebookFilterDto :"+notebookFilterDto.isOnlyAvailable());
+
+        Pageable pageable = PageRequest.of(page.isPresent() ? page.get() : 0, 10);
+        Page<NotebookListDto> notebookList = notebookService.getList(notebookFilterDto, pageable);
+
+        return ResponseEntity.ok(notebookList);
+    }
+
+    @GetMapping(value = "api/notebooks/size")
+    public ResponseEntity<Object> getSize() {
+        Set<Integer> sizeSet = notebookService.getSize();
+        return ResponseEntity.ok(sizeSet);
+    }
+
+    @GetMapping(value = "api/notebooks/model")
+    public ResponseEntity<Object> getModel() {
+        Set<String> modelSet = notebookService.getModel();
+        return ResponseEntity.ok(modelSet);
     }
 }

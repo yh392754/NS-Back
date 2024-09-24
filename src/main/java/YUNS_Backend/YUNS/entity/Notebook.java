@@ -33,10 +33,14 @@ public class Notebook {
     private String operatingSystem;
 
     @Column(nullable = false)
-    private boolean rentalStatus;
+    @Enumerated(EnumType.STRING)
+    private RentalStatus rentalStatus;
 
     @Column(nullable = true)
     private String notebookImgUrl;
+
+    @Column(nullable = false)
+    private int size;
 
     public static Notebook createNotebook(NotebookDto notebookDto, String imgUrl){
 
@@ -45,7 +49,8 @@ public class Notebook {
                 .manufactureDate(notebookDto.getManufactureDate())
                 .operatingSystem(notebookDto.getOs())
                 .notebookImgUrl(imgUrl)
-                .rentalStatus(false)
+                .rentalStatus(RentalStatus.AVAILABLE)
+                .size(notebookDto.getSize())
                 .build();
 
         return notebook;
@@ -56,5 +61,6 @@ public class Notebook {
         this.manufactureDate = notebookDto.getManufactureDate();
         this.operatingSystem = notebookDto.getOs();
         this.notebookImgUrl = imgUrl;
+        this.size = notebookDto.getSize();
     }
 }

@@ -1,7 +1,9 @@
 package YUNS_Backend.YUNS.controller;
 
 import YUNS_Backend.YUNS.dto.UserRegisterDto;
+import YUNS_Backend.YUNS.entity.Role;
 import YUNS_Backend.YUNS.entity.User;
+import YUNS_Backend.YUNS.repository.UserRepository;
 import YUNS_Backend.YUNS.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class UserController {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
     @PostMapping(value = "/api/register")
     public ResponseEntity<Object> register(@Valid @RequestBody UserRegisterDto userRegisterDto, BindingResult bindingResult){
@@ -74,5 +77,31 @@ public class UserController {
         response.put("message", "회원탈퇴가 완료되었습니다");
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/createAdmin")
+    public @ResponseBody ResponseEntity createAdmin(@Valid @RequestBody UserRegisterDto userRegisterDto, BindingResult bindingResult){
+        //입력된 값에 이상이 있을 경우 400에러 반환
+        if(bindingResult.hasErrors()){
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "잘못된 입력값이 있습니다");
+
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
+
+        User user = User.builder()
+                .studentNumber(userRegisterDto.getStudentNumber())
+                .name(userRegisterDto.getName())
+                .password(passwordEncoder.encode(userRegisterDto.getPassword()))
+                .phoneNumber(userRegisterDto.getPhoneNumber())
+                .email(userRegisterDto.getEmail())
+                .role(Role.ADMIN)
+                .userRentalStatus(false)
+                .build();
+
+        userRepository.save(user);
+
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }
