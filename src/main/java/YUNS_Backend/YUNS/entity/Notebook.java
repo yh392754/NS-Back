@@ -33,7 +33,7 @@ public class Notebook {
     private String operatingSystem;
 
     @Column(nullable = false)
-    private boolean rentalStatus;
+    private RentalStatus rentalStatus;
 
     @Column(nullable = true)
     private String notebookImgUrl;
@@ -45,7 +45,7 @@ public class Notebook {
                 .manufactureDate(notebookDto.getManufactureDate())
                 .operatingSystem(notebookDto.getOs())
                 .notebookImgUrl(imgUrl)
-                .rentalStatus(false)
+                .rentalStatus(RentalStatus.AVAILABLE)
                 .build();
 
         return notebook;
