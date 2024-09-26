@@ -6,6 +6,9 @@ import YUNS_Backend.YUNS.entity.User;
 import YUNS_Backend.YUNS.service.NoticeService;
 import YUNS_Backend.YUNS.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,11 +52,12 @@ public class NoticeController {
     }
 
     @GetMapping("/api/noticeList")
-    public ResponseEntity<List<NoticeDto>> getAllNotices() {
-        List<NoticeDto> noticeList = noticeService.getAllNotices();
+    public ResponseEntity<Page<NoticeDto>> getAllNotices(@RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<NoticeDto> noticeList = noticeService.getAllNotices(pageable);
         return ResponseEntity.ok(noticeList);
     }
-
     @GetMapping("/api/noticeList/{noticeId}")
     public ResponseEntity<NoticeDto> getNoticeById(@PathVariable Long noticeId) {
         Optional<NoticeDto> noticeDto = noticeService.getNoticeById(noticeId);
