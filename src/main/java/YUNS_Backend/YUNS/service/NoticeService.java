@@ -4,6 +4,8 @@ import YUNS_Backend.YUNS.dto.NoticeDto;
 import YUNS_Backend.YUNS.entity.Notice;
 import YUNS_Backend.YUNS.repository.NoticeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,19 +19,16 @@ public class NoticeService {
     @Autowired
     private NoticeRepository noticeRepository;
 
-    public List<NoticeDto> getAllNotices() {
-        List<Notice> notices = noticeRepository.findAll();
+    public Page<NoticeDto> getAllNotices(Pageable pageable) {
+        Page<Notice> notices = noticeRepository.findAll(pageable);
 
-        return notices.stream()
-                .map(notice -> NoticeDto.builder()
-                        .noticeId(notice.getNoticeId())
-                        .title(notice.getTitle())
-                        .date(notice.getDate())
-                        .build())
-                .collect(Collectors.toList());
+        // content 필드를 제외하고 NoticeDto로 변환
+        return notices.map(notice -> NoticeDto.builder()
+                .noticeId(notice.getNoticeId())
+                .title(notice.getTitle())
+                .date(notice.getDate())
+                .build());
     }
-
-    // Notice 생성 및 변환 로직은 그대로 유지
     public NoticeDto createNotice(Notice notice) {
         Notice savedNotice = noticeRepository.save(notice);
         return convertToDto(savedNotice);
