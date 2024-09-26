@@ -5,12 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import YUNS_Backend.YUNS.entity.User;
 import YUNS_Backend.YUNS.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -62,5 +65,14 @@ public class UserService implements UserDetailsService {
         } else {
             throw new IllegalArgumentException("user가 존재하지 않습니다.");
         }
+    }
+
+
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
+
+    public Optional<User> findUserById(Long userId) {
+        return userRepository.findById(userId);
     }
 }
