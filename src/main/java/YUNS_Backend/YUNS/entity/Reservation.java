@@ -26,9 +26,11 @@ public class Reservation {
     @Column(nullable = false)
     private Type type;
 
-    @Column(nullable = false)
-    private Long notebookId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notebook_id", nullable = false)
+    private Notebook notebook;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }
