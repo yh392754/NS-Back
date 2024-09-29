@@ -13,8 +13,8 @@ public class NotebookRegistRequestDto {
     @NotBlank
     private String model;
 
-    @NotNull
-    private LocalDate manufactureDate;
+    @NotBlank
+    private String manufactureDate;
 
     @NotBlank
     private String os;
