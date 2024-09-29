@@ -66,6 +66,7 @@ public class NotebookService {
                 .os(notebook.getOperatingSystem())
                 .rentalStatus(notebook.getRentalStatus().toString())
                 .imgUrl(notebook.getNotebookImgUrl())
+                .size(notebook.getSize())
                 .build();
 
         return notebookDetailDto;
