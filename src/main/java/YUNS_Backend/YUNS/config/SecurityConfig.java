@@ -1,8 +1,6 @@
 package YUNS_Backend.YUNS.config;
 
-import YUNS_Backend.YUNS.custom.CustomAuthenticationSuccessHandler;
-import YUNS_Backend.YUNS.custom.CustomLogoutSuccessHandler;
-import YUNS_Backend.YUNS.custom.LoginAuthenticationFilter;
+import YUNS_Backend.YUNS.custom.*;
 import YUNS_Backend.YUNS.entity.Role;
 import YUNS_Backend.YUNS.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +34,10 @@ public class SecurityConfig {
 
     @Autowired
     CustomLogoutSuccessHandler customLogoutSuccessHandler;
+    @Autowired
+    CustomAccessDeniedHandler customAccessDeniedHandler;
+    @Autowired
+    CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -54,8 +56,13 @@ public class SecurityConfig {
                         (auth) -> auth
                                 .requestMatchers("/api/register", "/api/login").permitAll()
                                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                                .requestMatchers("/api/questions/**", "api/rentals/create", "api/extends/create", "/api/noticeList/**", "/api/logout", "/api/users/**").authenticated()
+                                .requestMatchers("/api/questions/**", "api/rentals/create/**", "api/extends/create/**", "/api/noticeList/**", "/api/logout", "/api/users/**").authenticated()
                                 .anyRequest().permitAll()
+                )
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling
+                                .accessDeniedHandler(customAccessDeniedHandler)
+                                .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                 .addFilterAt(
                         this.abstractAuthenticationProcessingFilter(authenticationManager, this.authenticationSuccessHandler()),
