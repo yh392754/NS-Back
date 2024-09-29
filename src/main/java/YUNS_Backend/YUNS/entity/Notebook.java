@@ -61,4 +61,8 @@ public class Notebook {
         this.notebookImgUrl = imgUrl;
         this.size = notebookRegistRequestDto.getSize();
     }
+
+    public void updateRentalStatus(RentalStatus rentalStatus){
+        this.rentalStatus = rentalStatus;
+    }
 }
