@@ -9,11 +9,13 @@ import YUNS_Backend.YUNS.exception.ErrorCode;
 import YUNS_Backend.YUNS.service.NotebookService;
 import YUNS_Backend.YUNS.service.S3Service;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -29,7 +31,11 @@ public class NotebookController {
     private final NotebookService notebookService;
 
     @PostMapping(value = "/api/admin/notebooks/create")
-    public ResponseEntity<Object> notebookCreate(@RequestBody NotebookRegistRequestDto notebookRegistRequestDto){
+    public ResponseEntity<Object> notebookCreate(@Valid @RequestBody NotebookRegistRequestDto notebookRegistRequestDto, BindingResult bindingResult){
+
+        if(bindingResult.hasErrors()){
+            throw new CustomException(ErrorCode.NOTEBOOK_INPUT_INVALID);
+        }
 
         String imageUrl = null;
         if(notebookRegistRequestDto.getImage() != null && !notebookRegistRequestDto.getImage().isEmpty()){
