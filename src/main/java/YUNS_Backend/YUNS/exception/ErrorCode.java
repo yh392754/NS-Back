@@ -20,8 +20,14 @@ public enum ErrorCode {
     USER_REGIST_FAILED(INTERNAL_SERVER_ERROR, "UE5", "회원가입에 실패했습니다."),
     USER_NOT_FOUND(BAD_REQUEST, "UE6", "해당하는 사용자가 없습니다."),
 
-    // 권한 관련 에러 /
-    NO_PERMISSION(FORBIDDEN, "AE1", "해당 요청에 대한 권한이 없습니다.");
+    // 권한 관련 에러 //
+    NO_PERMISSION(FORBIDDEN, "AE1", "해당 요청에 대한 권한이 없습니다."),
+
+    // 대여 관련 에러 //
+    ALREADY_RENTAL(CONFLICT, "RE1", "이미 대여중인 노트북이 있습니다."),
+    ALREADY_RENTAL_REQUEST(CONFLICT, "RE2", "이미 대여 신청한 노트북이 있습니다."),
+    RENTAL_NOT_FOUND_BY_USER(NOT_FOUND, "RE3", "대여중인 노트북이 없습니다."),
+    DIFFERENT_NOTEBOOK(BAD_REQUEST, "RE4", "해당 사용자가 대여중인 노트북이 아닙니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
