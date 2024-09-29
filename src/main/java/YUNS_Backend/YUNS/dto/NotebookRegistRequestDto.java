@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 
 @Getter
-public class NotebookDto {
+public class NotebookRegistRequestDto {
 
     private String model;
     private LocalDate manufactureDate;
