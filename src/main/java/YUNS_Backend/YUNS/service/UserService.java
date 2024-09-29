@@ -1,6 +1,8 @@
 package YUNS_Backend.YUNS.service;
 
 import YUNS_Backend.YUNS.custom.CustomUserDetails;
+import YUNS_Backend.YUNS.exception.CustomException;
+import YUNS_Backend.YUNS.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import YUNS_Backend.YUNS.entity.User;
 import YUNS_Backend.YUNS.repository.UserRepository;
@@ -28,7 +30,7 @@ public class UserService implements UserDetailsService {
     private void validateDuplicateUser(User user) {
         User findUser = userRepository.findByStudentNumber(user.getStudentNumber());
         if (findUser != null) {
-            throw new IllegalStateException("이미 가입된 회원입니다.");
+            throw new CustomException(ErrorCode.USER_ALREADY_EXIST);
         }
     }
 
@@ -60,7 +62,7 @@ public class UserService implements UserDetailsService {
         if (user.isPresent()) {
             userRepository.deleteById(userId);
         } else {
-            throw new IllegalArgumentException("user가 존재하지 않습니다.");
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
     }
 }

@@ -8,10 +8,10 @@ import lombok.Getter;
 @Getter
 public class UserRegisterDto {
 
-    @NotBlank(message = "이름은 필수 입력 값입니다.")
+    @NotBlank
     private String name;
 
-    @NotBlank(message = "학번은 필수 입력 값입니다.")
+    @NotBlank
     private String studentNumber;
 
 
@@ -19,7 +19,7 @@ public class UserRegisterDto {
     @Size(min = 10, message = "비밀번호는 최소 10자 이상이어야 합니다.")
     private String password;
 
-    @NotBlank(message = "휴대폰 번호는 필수 입력 값입니다")
+    @NotBlank
     private String phoneNumber;
 
     @NotBlank(message = "이메일은 필수 입력 값입니다")
