@@ -1,5 +1,6 @@
 package YUNS_Backend.YUNS.controller;
 
+import YUNS_Backend.YUNS.dto.NotebookDetailDto;
 import YUNS_Backend.YUNS.dto.NotebookRegistRequestDto;
 import YUNS_Backend.YUNS.dto.NotebookFilterDto;
 import YUNS_Backend.YUNS.dto.NotebookListDto;
@@ -55,7 +56,7 @@ public class NotebookController {
         try{
             notebookService.updateNotebook(notebookRegistRequestDto, imageUrl, notebookId);
         }catch (EntityNotFoundException e){
-            throw new CustomException(ErrorCode.NOTEBOOK_ID_NOT_FOUND) ;
+            throw new CustomException(ErrorCode.NOTEBOOK_NOT_FOUND) ;
         }
 
         Map<String, String> response = new HashMap<>();
@@ -71,7 +72,7 @@ public class NotebookController {
         try{
             notebookService.deleteNotebook(notebookId);
         }catch (EntityNotFoundException e){
-            throw new CustomException(ErrorCode.NOTEBOOK_ID_NOT_FOUND) ;
+            throw new CustomException(ErrorCode.NOTEBOOK_NOT_FOUND) ;
         }
 
         response.put("message", "성공적으로 삭제가 완료되었습니다.");
@@ -98,5 +99,20 @@ public class NotebookController {
     public ResponseEntity<Object> getModel() {
         Set<String> modelSet = notebookService.getModel();
         return ResponseEntity.ok(modelSet);
+    }
+
+    //노트북 상세 조회
+    @GetMapping(value = "api/notebooks/{id}/read")
+    public ResponseEntity<Object> getDetailNotebook(@PathVariable("id") Long id){
+
+        NotebookDetailDto notebookDetailDto = null;
+
+        try {
+            notebookDetailDto = notebookService.getNotebookDetail(id);
+        }catch (EntityNotFoundException e){
+            throw new CustomException(ErrorCode.NOTEBOOK_NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(notebookDetailDto);
     }
 }

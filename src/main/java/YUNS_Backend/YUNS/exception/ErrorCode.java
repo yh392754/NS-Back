@@ -10,7 +10,7 @@ import static org.springframework.http.HttpStatus.*;
 public enum ErrorCode {
 
     // 노트북 관련 에러 //
-    NOTEBOOK_ID_NOT_FOUND(NOT_FOUND, "NE1", "해당하는 notebookId가 존재하지 않습니다."),
+    NOTEBOOK_NOT_FOUND(NOT_FOUND, "NE1", "해당하는 notebookId가 존재하지 않습니다."),
 
     // 사용자 관련 에러 //
     USER_EMAIL_INVALID(BAD_REQUEST, "UE1", "잘못된 이메일 형식입니다."),

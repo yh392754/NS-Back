@@ -1,5 +1,6 @@
 package YUNS_Backend.YUNS.service;
 
+import YUNS_Backend.YUNS.dto.NotebookDetailDto;
 import YUNS_Backend.YUNS.dto.NotebookRegistRequestDto;
 import YUNS_Backend.YUNS.dto.NotebookFilterDto;
 import YUNS_Backend.YUNS.dto.NotebookListDto;
@@ -51,5 +52,22 @@ public class NotebookService {
     @Transactional(readOnly = true)
     public Set<String> getModel(){
         return notebookRepository.findDistinctModel();
+    }
+
+    @Transactional(readOnly = true)
+    public NotebookDetailDto getNotebookDetail(Long id){
+        Notebook notebook = notebookRepository.findByNotebookId(id)
+                .orElseThrow(EntityNotFoundException::new);
+
+        NotebookDetailDto notebookDetailDto = NotebookDetailDto.builder()
+                .id(notebook.getNotebookId())
+                .model(notebook.getModel())
+                .manufactureDate(notebook.getManufactureDate())
+                .os(notebook.getOperatingSystem())
+                .rentalStatus(notebook.getRentalStatus().toString())
+                .imgUrl(notebook.getNotebookImgUrl())
+                .build();
+
+        return notebookDetailDto;
     }
 }
