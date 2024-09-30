@@ -65,4 +65,6 @@ public class Notebook {
     public void updateRentalStatus(RentalStatus rentalStatus){
         this.rentalStatus = rentalStatus;
     }
+
+
 }
