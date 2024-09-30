@@ -3,6 +3,8 @@ package YUNS_Backend.YUNS.controller;
 import YUNS_Backend.YUNS.dto.UserRegisterDto;
 import YUNS_Backend.YUNS.entity.Role;
 import YUNS_Backend.YUNS.entity.User;
+import YUNS_Backend.YUNS.exception.CustomException;
+import YUNS_Backend.YUNS.exception.ErrorCode;
 import YUNS_Backend.YUNS.repository.UserRepository;
 import YUNS_Backend.YUNS.service.UserService;
 import jakarta.validation.Valid;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -34,24 +37,28 @@ public class UserController {
     @PostMapping(value = "/api/register")
     public ResponseEntity<Object> register(@Valid @RequestBody UserRegisterDto userRegisterDto, BindingResult bindingResult){
 
-        //입력된 값에 이상이 있을 경우 400에러 반환
         if(bindingResult.hasErrors()){
-            Map<String, String> error = new HashMap<>();
-            error.put("message", "잘못된 입력값이 있습니다.");
+            for (FieldError fieldError : bindingResult.getFieldErrors()) {
+                String field = fieldError.getField();
 
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                switch (field) {
+                    case "email":
+                        throw new CustomException(ErrorCode.USER_EMAIL_INVALID);
+                    case "password":
+                        throw new CustomException(ErrorCode.USER_PASSWORD_INVALID);
+                    default:
+                        throw new CustomException(ErrorCode.USER_INVALID_INPUT);
+                }
+            }
         }
 
         try{
             User user = User.createUser(userRegisterDto, passwordEncoder);
             userService.registerUser(user);
-        }catch (IllegalStateException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }catch (Exception e){ //서비스에서 에러 발생시 500에러 반환
-            Map<String, String> error = new HashMap<>();
-            error.put("message", "회원가입에 실패했습니다");
-
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (CustomException ce){
+            throw ce;
+        } catch (Exception e){
+            throw new CustomException(ErrorCode.USER_REGIST_FAILED);
         }
 
         Map<String, String> response = new HashMap<>();
@@ -66,17 +73,10 @@ public class UserController {
         User user = userService.findUserByStudentNumber(studentNumber);
 
         if(userId != user.getUserId()){
-            Map<String, String> error = new HashMap<>();
-            error.put("message", "해당 요청에 대한 권한이 없습니다");
-
-            return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+            throw new CustomException(ErrorCode.NO_PERMISSION);
         }
 
-        try{
-            userService.deleteUser(userId);
-        }catch (IllegalArgumentException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        userService.deleteUser(userId);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "회원탈퇴가 완료되었습니다");
@@ -84,14 +84,12 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    //테스트를 위한 admin 생성용 api
     @PostMapping("/api/createAdmin")
     public @ResponseBody ResponseEntity createAdmin(@Valid @RequestBody UserRegisterDto userRegisterDto, BindingResult bindingResult){
-        //입력된 값에 이상이 있을 경우 400에러 반환
-        if(bindingResult.hasErrors()){
-            Map<String, String> error = new HashMap<>();
-            error.put("message", "잘못된 입력값이 있습니다");
 
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        if(bindingResult.hasErrors()){
+            throw new CustomException(ErrorCode.USER_INVALID_INPUT);
         }
 
         User user = User.builder()
@@ -105,7 +103,6 @@ public class UserController {
                 .build();
 
         userRepository.save(user);
-
 
         return new ResponseEntity<>(user, HttpStatus.OK);
     }

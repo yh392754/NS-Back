@@ -1,13 +1,11 @@
 package YUNS_Backend.YUNS.entity;
 
-import YUNS_Backend.YUNS.dto.NotebookDto;
-import YUNS_Backend.YUNS.dto.UserRegisterDto;
+import YUNS_Backend.YUNS.dto.NotebookRegistRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 
@@ -42,25 +40,29 @@ public class Notebook {
     @Column(nullable = false)
     private int size;
 
-    public static Notebook createNotebook(NotebookDto notebookDto, String imgUrl){
+    public static Notebook createNotebook(NotebookRegistRequestDto notebookRegistRequestDto, String imgUrl){
 
         Notebook notebook = Notebook.builder()
-                .model(notebookDto.getModel())
-                .manufactureDate(notebookDto.getManufactureDate())
-                .operatingSystem(notebookDto.getOs())
+                .model(notebookRegistRequestDto.getModel())
+                .manufactureDate(notebookRegistRequestDto.getManufactureDate())
+                .operatingSystem(notebookRegistRequestDto.getOs())
                 .notebookImgUrl(imgUrl)
                 .rentalStatus(RentalStatus.AVAILABLE)
-                .size(notebookDto.getSize())
+                .size(notebookRegistRequestDto.getSize())
                 .build();
 
         return notebook;
     }
 
-    public void updateNotebook(NotebookDto notebookDto, String imgUrl){
-        this.model = notebookDto.getModel();
-        this.manufactureDate = notebookDto.getManufactureDate();
-        this.operatingSystem = notebookDto.getOs();
+    public void updateNotebook(NotebookRegistRequestDto notebookRegistRequestDto, String imgUrl){
+        this.model = notebookRegistRequestDto.getModel();
+        this.manufactureDate = notebookRegistRequestDto.getManufactureDate();
+        this.operatingSystem = notebookRegistRequestDto.getOs();
         this.notebookImgUrl = imgUrl;
-        this.size = notebookDto.getSize();
+        this.size = notebookRegistRequestDto.getSize();
+    }
+
+    public void updateRentalStatus(RentalStatus rentalStatus){
+        this.rentalStatus = rentalStatus;
     }
 }

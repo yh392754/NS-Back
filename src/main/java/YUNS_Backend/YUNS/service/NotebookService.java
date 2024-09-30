@@ -1,6 +1,7 @@
 package YUNS_Backend.YUNS.service;
 
-import YUNS_Backend.YUNS.dto.NotebookDto;
+import YUNS_Backend.YUNS.dto.NotebookDetailDto;
+import YUNS_Backend.YUNS.dto.NotebookRegistRequestDto;
 import YUNS_Backend.YUNS.dto.NotebookFilterDto;
 import YUNS_Backend.YUNS.dto.NotebookListDto;
 import YUNS_Backend.YUNS.entity.Notebook;
@@ -21,16 +22,16 @@ public class NotebookService {
 
     final NotebookRepository notebookRepository;
 
-    public Long saveNotebook(NotebookDto notebookDto, String imgUrl){
-        Notebook notebook = Notebook.createNotebook(notebookDto, imgUrl);
+    public Long saveNotebook(NotebookRegistRequestDto notebookRegistRequestDto, String imgUrl){
+        Notebook notebook = Notebook.createNotebook(notebookRegistRequestDto, imgUrl);
         notebookRepository.save(notebook);
 
         return notebook.getNotebookId();
     }
 
-    public void updateNotebook(NotebookDto notebookDto, String imgUrl, Long notebookId){
+    public void updateNotebook(NotebookRegistRequestDto notebookRegistRequestDto, String imgUrl, Long notebookId){
         Notebook notebook = notebookRepository.findByNotebookId(notebookId).orElseThrow(EntityNotFoundException::new);
-        notebook.updateNotebook(notebookDto, imgUrl);
+        notebook.updateNotebook(notebookRegistRequestDto, imgUrl);
     }
 
     public void deleteNotebook(Long notebookId){
@@ -51,5 +52,23 @@ public class NotebookService {
     @Transactional(readOnly = true)
     public Set<String> getModel(){
         return notebookRepository.findDistinctModel();
+    }
+
+    @Transactional(readOnly = true)
+    public NotebookDetailDto getNotebookDetail(Long id){
+        Notebook notebook = notebookRepository.findByNotebookId(id)
+                .orElseThrow(EntityNotFoundException::new);
+
+        NotebookDetailDto notebookDetailDto = NotebookDetailDto.builder()
+                .id(notebook.getNotebookId())
+                .model(notebook.getModel())
+                .manufactureDate(notebook.getManufactureDate())
+                .os(notebook.getOperatingSystem())
+                .rentalStatus(notebook.getRentalStatus().toString())
+                .imgUrl(notebook.getNotebookImgUrl())
+                .size(notebook.getSize())
+                .build();
+
+        return notebookDetailDto;
     }
 }
