@@ -1,15 +1,21 @@
 package YUNS_Backend.YUNS.controller;
 
+import YUNS_Backend.YUNS.dto.RentalDto;
 import YUNS_Backend.YUNS.dto.RentalDto.RentalRequest;
 import YUNS_Backend.YUNS.dto.RentalDto.RentalResponse;
+import YUNS_Backend.YUNS.dto.ReservationDto;
 import YUNS_Backend.YUNS.entity.Rental;
+import YUNS_Backend.YUNS.entity.Reservation;
 import YUNS_Backend.YUNS.repository.RentalRepository;
+import YUNS_Backend.YUNS.repository.ReservationRepository;
+import YUNS_Backend.YUNS.service.RentalService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -17,25 +23,28 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RentalController {
 
-    private final RentalRepository rentalRepository;
+    private final ReservationRepository reservationRepository;
+    private final RentalService rentalService;
 
     @GetMapping
-    public RentalResponse getRentalRequests() {
-        List<Rental> rentals = rentalRepository.findAll();
+    public ReservationDto.ReservationResponse getRentalRequests() {
+        List<Reservation> reservations = reservationRepository.findAll();  // 모든 대여 요청 조회
 
-        List<RentalRequest> rentalRequests = rentals.stream()
-                .map(rental -> RentalRequest.builder()
-                        .reservationId(rental.getRentalId()) // Reservation ID와 Rental ID를 동일하게 사용
-                        .startDate(rental.getStartDate().toString())
-                        .endDate(rental.getEndDate().toString())
-                        .userId(rental.getUser().getUserId())
-                        .name(rental.getUser().getName())
-                        .notebookId(rental.getNotebook().getNotebookId())
+        List<ReservationDto.ReservationRequest> reservationRequests = reservations.stream()
+                .map(reservation -> ReservationDto.ReservationRequest.builder()
+                        .reservationId(reservation.getReservationId())
+                        .requestDate(reservation.getRequestDate().toString())
+                        .userId(reservation.getUser().getUserId())
+                        .name(reservation.getUser().getName())
+                        .notebookId(reservation.getNotebook().getNotebookId())
                         .build())
                 .collect(Collectors.toList());
 
-        return RentalResponse.builder()
-                .rentalRequests(rentalRequests)
+        return ReservationDto.ReservationResponse.builder()
+                .reservationRequests(reservationRequests)
                 .build();
     }
+
+
+
 }
