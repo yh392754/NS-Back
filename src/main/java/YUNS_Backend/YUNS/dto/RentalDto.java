@@ -25,4 +25,11 @@ public class RentalDto {
     public static class RentalResponse {
         private List<RentalRequest> rentalRequests;
     }
+
+    @Getter
+    @Builder
+    public static class RentalApprovalRequest {
+        private Long reservationId;
+        private String type; // RENTAL 혹은 EXTEND
+    }
 }
