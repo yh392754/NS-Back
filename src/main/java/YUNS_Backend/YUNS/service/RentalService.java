@@ -23,7 +23,7 @@ public class RentalService {
     @Transactional
     public void approveRentalRequest(Long reservationId, String type) {
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found with id: " + reservationId)); // 간단한 예외 처리
+                .orElseThrow(() -> new RuntimeException("Reservation not found with id: " + reservationId));
 
         if (type.equals("RENTAL")) {
             Rental rental = Rental.builder()
@@ -34,6 +34,23 @@ public class RentalService {
                     .build();
 
             rentalRepository.save(rental);
+        } else if (type.equalsIgnoreCase("EXTEND")) {
+            // 연장 요청 처리
+            Rental rental = rentalRepository.findByStudentNumber(reservation.getUser().getStudentNumber())
+                    .orElseThrow(() -> new RuntimeException("Rental not found for the user with student number: "
+                            + reservation.getUser().getStudentNumber()));
+
+            Rental updatedRental = Rental.builder()
+                    .rentalId(rental.getRentalId())
+                    .notebook(rental.getNotebook())
+                    .user(rental.getUser())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate().plusMonths(1))
+                    .build();
+
+            rentalRepository.save(updatedRental);
+        } else {
+            throw new RuntimeException("Invalid request type: " + type);
         }
 
         reservationRepository.delete(reservation);
