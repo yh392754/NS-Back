@@ -45,6 +45,14 @@ public class RentalController {
                 .build();
     }
 
+    @PostMapping("/approve/{reservationId}")
+    public ResponseEntity<Object> approveRentalRequest(@PathVariable Long reservationId, @RequestBody RentalDto.RentalApprovalRequest rentalApprovalRequest) {
+        rentalService.approveRentalRequest(reservationId, rentalApprovalRequest.getType());
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "대여 요청 승인이 완료되었습니다.");
+        return ResponseEntity.ok(response);
+    }
 
 
 }
