@@ -19,14 +19,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/admin/request/rental")
 @RequiredArgsConstructor
 public class RentalController {
 
     private final ReservationRepository reservationRepository;
     private final RentalService rentalService;
+    private final RentalRepository rentalRepository;
 
-    @GetMapping
+    @GetMapping("/api/admin/request/rental")
     public ReservationDto.ReservationResponse getRentalRequests() {
         List<Reservation> reservations = reservationRepository.findAll();  // 모든 대여 요청 조회
 
@@ -45,7 +45,7 @@ public class RentalController {
                 .build();
     }
 
-    @PostMapping("/approve/{reservationId}")
+    @PostMapping("/api/admin/approve/{reservationId}")
     public ResponseEntity<Object> approveRentalRequest(@PathVariable Long reservationId, @RequestBody RentalDto.RentalApprovalRequest rentalApprovalRequest) {
         rentalService.approveRentalRequest(reservationId, rentalApprovalRequest.getType());
 
@@ -53,6 +53,5 @@ public class RentalController {
         response.put("message", "대여 요청 승인이 완료되었습니다.");
         return ResponseEntity.ok(response);
     }
-
 
 }
