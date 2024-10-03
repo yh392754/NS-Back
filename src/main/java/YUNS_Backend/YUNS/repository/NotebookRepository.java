@@ -1,8 +1,11 @@
 package YUNS_Backend.YUNS.repository;
 
 import YUNS_Backend.YUNS.entity.Notebook;
+import YUNS_Backend.YUNS.entity.RentalStatus;
 import YUNS_Backend.YUNS.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -21,4 +24,6 @@ public interface NotebookRepository extends JpaRepository<Notebook, Long>, Query
 
     @Query("SELECT DISTINCT n.model FROM Notebook n ORDER BY n.model ASC")
     Set<String> findDistinctModel();
+
+    Page<Notebook> findByRentalStatus(RentalStatus rentalStatus, Pageable pageable);
 }
