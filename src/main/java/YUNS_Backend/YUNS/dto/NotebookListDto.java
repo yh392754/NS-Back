@@ -19,9 +19,10 @@ public class NotebookListDto {
         this.rentalStatus = rentalStatus;
     }
 
-    public NotebookListDto(Long notebookId, String model, int size, String operatingSystem) {
+    public NotebookListDto(Long notebookId, String model, RentalStatus rentalStatus, int size, String operatingSystem) {
         this.notebookId = notebookId;
         this.model = model;
+        this.rentalStatus = rentalStatus;  // 제대로 매핑되었는지 확인
         this.size = size;
         this.operatingSystem = operatingSystem;
     }

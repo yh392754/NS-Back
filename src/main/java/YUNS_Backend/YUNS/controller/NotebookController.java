@@ -117,6 +117,8 @@ public class NotebookController {
         return ResponseEntity.ok(notebookDetailDto);
     }
 
+
+    //stauts 파라미터
     @GetMapping("/api/admin/rentals/read")
     public ResponseEntity<Page<NotebookListDto>> getNotebooksByRentalStatus(
             @RequestParam("status") RentalStatus rentalStatus,
@@ -127,5 +129,21 @@ public class NotebookController {
         Page<NotebookListDto> notebooks = notebookService.getNotebooksByRentalStatus(rentalStatus, pageable);
 
         return ResponseEntity.ok(notebooks);
+    }
+
+
+    //rentalStatus 파라미터
+    @PutMapping("/api/admin/rentals/{notebookId}/update")
+    public ResponseEntity<Object> updateRentalStatus(@PathVariable Long notebookId, @RequestParam RentalStatus rentalStatus) {
+
+        try {
+            notebookService.updateRentalStatus(notebookId, rentalStatus);
+        } catch (EntityNotFoundException e) {
+            throw new CustomException(ErrorCode.NOTEBOOK_NOT_FOUND);
+        }
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "노트북의 대여 상태가 성공적으로 수정되었습니다.");
+        return ResponseEntity.ok(response);
     }
 }

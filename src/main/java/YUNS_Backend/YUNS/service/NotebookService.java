@@ -79,8 +79,18 @@ public class NotebookService {
         return notebooks.map(notebook -> new NotebookListDto(
                 notebook.getNotebookId(),
                 notebook.getModel(),
+                notebook.getRentalStatus(),  // rentalStatus 올바른 위치
                 notebook.getSize(),
                 notebook.getOperatingSystem()
         ));
+    }
+
+    @Transactional
+    public void updateRentalStatus(Long notebookId, RentalStatus rentalStatus) {
+        Notebook notebook = notebookRepository.findByNotebookId(notebookId)
+                .orElseThrow(() -> new EntityNotFoundException("Notebook not found with id: " + notebookId));
+
+        notebook.updateRentalStatus(rentalStatus);
+        notebookRepository.save(notebook);
     }
 }
