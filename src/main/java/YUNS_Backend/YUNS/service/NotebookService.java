@@ -5,6 +5,7 @@ import YUNS_Backend.YUNS.dto.NotebookRegistRequestDto;
 import YUNS_Backend.YUNS.dto.NotebookFilterDto;
 import YUNS_Backend.YUNS.dto.NotebookListDto;
 import YUNS_Backend.YUNS.entity.Notebook;
+import YUNS_Backend.YUNS.entity.RentalStatus;
 import YUNS_Backend.YUNS.repository.NotebookRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -70,5 +71,16 @@ public class NotebookService {
                 .build();
 
         return notebookDetailDto;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<NotebookListDto> getNotebooksByRentalStatus(RentalStatus rentalStatus, Pageable pageable) {
+        Page<Notebook> notebooks = notebookRepository.findByRentalStatus(rentalStatus, pageable);
+        return notebooks.map(notebook -> new NotebookListDto(
+                notebook.getNotebookId(),
+                notebook.getModel(),
+                notebook.getSize(),
+                notebook.getOperatingSystem()
+        ));
     }
 }

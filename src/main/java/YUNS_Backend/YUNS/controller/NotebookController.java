@@ -4,6 +4,7 @@ import YUNS_Backend.YUNS.dto.NotebookDetailDto;
 import YUNS_Backend.YUNS.dto.NotebookRegistRequestDto;
 import YUNS_Backend.YUNS.dto.NotebookFilterDto;
 import YUNS_Backend.YUNS.dto.NotebookListDto;
+import YUNS_Backend.YUNS.entity.RentalStatus;
 import YUNS_Backend.YUNS.exception.CustomException;
 import YUNS_Backend.YUNS.exception.ErrorCode;
 import YUNS_Backend.YUNS.service.NotebookService;
@@ -28,7 +29,7 @@ public class NotebookController {
     private final S3Service s3Service;
     private final NotebookService notebookService;
 
-    @PostMapping(value = "/api/admin/notebooks/create")
+    @PostMapping(value = " ")
     public ResponseEntity<Object> notebookCreate(@RequestBody NotebookRegistRequestDto notebookRegistRequestDto){
 
         String imageUrl = null;
@@ -114,5 +115,17 @@ public class NotebookController {
         }
 
         return ResponseEntity.ok(notebookDetailDto);
+    }
+
+    @GetMapping("/api/admin/rentals/read")
+    public ResponseEntity<Page<NotebookListDto>> getNotebooksByRentalStatus(
+            @RequestParam("status") RentalStatus rentalStatus,
+            @RequestParam("page") Optional<Integer> page,
+            @RequestParam("size") Optional<Integer> size) {
+
+        Pageable pageable = PageRequest.of(page.orElse(0), size.orElse(10));
+        Page<NotebookListDto> notebooks = notebookService.getNotebooksByRentalStatus(rentalStatus, pageable);
+
+        return ResponseEntity.ok(notebooks);
     }
 }
