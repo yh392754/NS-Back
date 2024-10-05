@@ -75,38 +75,4 @@ public class NotebookService {
         return notebookDetailDto;
     }
 
-    @Transactional(readOnly = true)
-    public Page<NotebookListDto> getNotebooksByRentalStatus(RentalStatus rentalStatus, Pageable pageable) {
-        Page<Notebook> notebooks = notebookRepository.findByRentalStatus(rentalStatus, pageable);
-        return notebooks.map(notebook -> {
-            // 최신 Rental 정보 가져오기 (예시로 첫 번째 렌탈 정보만 가져옴)
-            Rental latestRental = notebook.getRentals().isEmpty() ? null : notebook.getRentals().get(0);
-            LocalDate rentalStartDate = latestRental != null ? latestRental.getStartDate() : null;
-            LocalDate rentalEndDate = latestRental != null ? latestRental.getEndDate() : null;
-
-            // 대여한 User 정보 가져오기
-            String renterName = latestRental != null ? latestRental.getUser().getName() : null;
-            String renterEmail = latestRental != null ? latestRental.getUser().getEmail() : null;
-
-            return new NotebookListDto(
-                    notebook.getNotebookId(),
-                    notebook.getModel(),
-                    notebook.getRentalStatus(),
-                    notebook.getSize(),
-                    notebook.getOperatingSystem(),
-                    rentalStartDate,
-                    rentalEndDate,
-                    renterName
-            );
-        });
-    }
-
-    @Transactional
-    public void updateRentalStatus(Long notebookId, RentalStatus rentalStatus) {
-        Notebook notebook = notebookRepository.findByNotebookId(notebookId)
-                .orElseThrow(() -> new EntityNotFoundException("Notebook not found with id: " + notebookId));
-
-        notebook.updateRentalStatus(rentalStatus);
-        notebookRepository.save(notebook);
-    }
 }

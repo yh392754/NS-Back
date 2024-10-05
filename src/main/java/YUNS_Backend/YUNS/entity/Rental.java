@@ -1,5 +1,6 @@
 package YUNS_Backend.YUNS.entity;
 
+import YUNS_Backend.YUNS.dto.RentalDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,11 +27,17 @@ public class Rental {
     @Column(nullable = false)
     private LocalDate endDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notebook_id", nullable = false)
     private Notebook notebook;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+
+    // 대여 정보 업데이트
+    public void updateRental(RentalDto.RentalRequest rentalRequest) {
+        this.endDate = LocalDate.parse(rentalRequest.getEndDate());
+    }
 }
