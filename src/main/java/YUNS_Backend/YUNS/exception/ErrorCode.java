@@ -28,7 +28,10 @@ public enum ErrorCode {
     ALREADY_RENTAL(CONFLICT, "RE1", "이미 대여중인 노트북이 있습니다."),
     ALREADY_RENTAL_REQUEST(CONFLICT, "RE2", "이미 대여 신청한 노트북이 있습니다."),
     RENTAL_NOT_FOUND_BY_USER(NOT_FOUND, "RE3", "대여중인 노트북이 없습니다."),
-    DIFFERENT_NOTEBOOK(BAD_REQUEST, "RE4", "해당 사용자가 대여중인 노트북이 아닙니다.");
+    DIFFERENT_NOTEBOOK(BAD_REQUEST, "RE4", "해당 사용자가 대여중인 노트북이 아닙니다."),
+
+    RENTAL_NOT_FOUND(NOT_FOUND, "RE5", "해당 대여 기록을 찾을 수 없습니다.");
+
 
     private final HttpStatus httpStatus;
     private final String code;

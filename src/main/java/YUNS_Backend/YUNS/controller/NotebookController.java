@@ -4,6 +4,7 @@ import YUNS_Backend.YUNS.dto.NotebookDetailDto;
 import YUNS_Backend.YUNS.dto.NotebookRegistRequestDto;
 import YUNS_Backend.YUNS.dto.NotebookFilterDto;
 import YUNS_Backend.YUNS.dto.NotebookListDto;
+import YUNS_Backend.YUNS.entity.RentalStatus;
 import YUNS_Backend.YUNS.exception.CustomException;
 import YUNS_Backend.YUNS.exception.ErrorCode;
 import YUNS_Backend.YUNS.service.NotebookService;
@@ -121,4 +122,7 @@ public class NotebookController {
 
         return ResponseEntity.ok(notebookDetailDto);
     }
+
+
+
 }

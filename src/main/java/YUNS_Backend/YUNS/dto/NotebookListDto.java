@@ -4,11 +4,13 @@ import YUNS_Backend.YUNS.entity.RentalStatus;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 @Getter
 public class NotebookListDto {
-    long notebookId;
-    String model;
-    RentalStatus rentalStatus;
+    private long notebookId;
+    private String model;
+    private RentalStatus rentalStatus;
 
     @QueryProjection
     public NotebookListDto(Long notebookId, String model, RentalStatus rentalStatus) {
@@ -16,4 +18,6 @@ public class NotebookListDto {
         this.model = model;
         this.rentalStatus = rentalStatus;
     }
+
+
 }

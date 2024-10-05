@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter
@@ -40,6 +41,9 @@ public class Notebook {
     @Column(nullable = false)
     private int size;
 
+    @OneToMany(mappedBy = "notebook", fetch = FetchType.LAZY)
+    private List<Rental> rentals;
+
     public static Notebook createNotebook(NotebookRegistRequestDto notebookRegistRequestDto, String imgUrl){
 
         Notebook notebook = Notebook.builder()
@@ -65,4 +69,6 @@ public class Notebook {
     public void updateRentalStatus(RentalStatus rentalStatus){
         this.rentalStatus = rentalStatus;
     }
+
+
 }
