@@ -31,8 +31,10 @@ public class QuestionController {
 
     // 1:1 문의 리스트 조회
     @GetMapping("/api/questions/read")
-    public ResponseEntity<List<QuestionDto>> getAllQuestions() {
-        return ResponseEntity.ok(questionService.getAllQuestions());
+    public ResponseEntity<List<QuestionDto>> getPaginatedQuestions(@RequestParam(defaultValue = "1") int page) {
+        int pageSize = 10;  // 한 페이지에 표시할 항목 수
+        List<QuestionDto> paginatedQuestions = questionService.getQuestionsByPage(page, pageSize);
+        return ResponseEntity.ok(paginatedQuestions);
     }
 
     // 1:1 문의 세부 조회
