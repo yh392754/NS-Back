@@ -5,6 +5,9 @@ import YUNS_Backend.YUNS.entity.Question;
 import YUNS_Backend.YUNS.entity.User;
 import YUNS_Backend.YUNS.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,10 +23,13 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
 
-    // 모든 질문 리스트를 DTO로 반환
-    public List<QuestionDto> getAllQuestions() {
-        List<Question> questions = questionRepository.findAll();
-        return questions.stream().map(this::convertToDto).collect(Collectors.toList());
+    public List<QuestionDto> getQuestionsByPage(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize); // 페이지는 0부터 시작하므로 1을 빼줌
+        Page<Question> paginatedQuestions = questionRepository.findAll(pageable);
+
+        return paginatedQuestions.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     // 특정 질문을 DTO로 반환
