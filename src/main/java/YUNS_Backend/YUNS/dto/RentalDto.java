@@ -24,6 +24,11 @@ public class RentalDto {
     @Builder
     public static class RentalResponse {
         private List<RentalRequest> rentalRequests;
+        private Long rentalId;
+        private String startDate;
+        private String endDate;
+        private Long userId;
+        private Long notebookId;
     }
 
     @Getter
@@ -32,4 +37,6 @@ public class RentalDto {
         private Long reservationId;
         private String type; // RENTAL 혹은 EXTEND
     }
+
+
 }

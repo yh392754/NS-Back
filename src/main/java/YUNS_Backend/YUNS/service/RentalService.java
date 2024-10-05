@@ -1,5 +1,6 @@
 package YUNS_Backend.YUNS.service;
 
+import YUNS_Backend.YUNS.dto.RentalDto;
 import YUNS_Backend.YUNS.entity.Rental;
 import YUNS_Backend.YUNS.entity.Reservation;
 import YUNS_Backend.YUNS.exception.CustomException;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,5 +57,40 @@ public class RentalService {
         }
 
         reservationRepository.delete(reservation);
+    }
+
+    public List<RentalDto.RentalResponse> getRentalList(Long userId) {
+        List<Rental> rentals;
+        if (userId == null) {
+            rentals = rentalRepository.findAll(); // 모든 대여 기록
+        } else {
+            rentals = rentalRepository.findByUser_UserId(userId); // 특정 사용자 대여 기록
+        }
+
+        return rentals.stream()
+                .map(rental -> RentalDto.RentalResponse.builder()
+                        .rentalId(rental.getRentalId())
+                        .startDate(rental.getStartDate().toString())
+                        .endDate(rental.getEndDate().toString())
+                        .userId(rental.getUser().getUserId())
+                        .notebookId(rental.getNotebook().getNotebookId())
+                        .build())
+                .collect(Collectors.toList());
+    }
+    // 대여 현황 수정
+    public void updateRental(Long rentalId, RentalDto.RentalRequest rentalRequest) {
+        Rental rental = rentalRepository.findById(rentalId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RENTAL_NOT_FOUND));
+
+        rental.updateRental(rentalRequest);  // 대여 기록 업데이트
+        rentalRepository.save(rental);
+    }
+
+    // 대여현황 삭제
+    public void deleteRental(Long rentalId) {
+        Rental rental = rentalRepository.findById(rentalId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RENTAL_NOT_FOUND));
+
+        rentalRepository.delete(rental);  // 대여 기록 삭제
     }
 }

@@ -54,4 +54,32 @@ public class RentalController {
         return ResponseEntity.ok(response);
     }
 
+    // 대여현황 조회
+    @GetMapping("/api/admin/rentals")
+    public ResponseEntity<List<RentalDto.RentalResponse>> getRentalList(@RequestParam(required = false) Long userId) {
+        List<RentalDto.RentalResponse> rentalList = rentalService.getRentalList(userId);
+        return ResponseEntity.ok(rentalList);
+    }
+
+    // 대여현황 수정
+    @PutMapping("/api/admin/rentals/{rentalId}/update")
+    public ResponseEntity<Object> updateRental(
+            @PathVariable Long rentalId,
+            @RequestBody RentalDto.RentalRequest rentalRequest
+    ) {
+        rentalService.updateRental(rentalId, rentalRequest);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "대여 현황이 성공적으로 수정되었습니다.");
+        return ResponseEntity.ok(response);
+    }
+
+    // 대여현황 삭제
+    @DeleteMapping("/api/admin/rentals/{rentalId}/delete")
+    public ResponseEntity<Object> deleteRental(@PathVariable Long rentalId) {
+        rentalService.deleteRental(rentalId);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "대여 기록이 성공적으로 삭제되었습니다.");
+        return ResponseEntity.ok(response);
+    }
+
 }
