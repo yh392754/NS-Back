@@ -39,4 +39,14 @@ public class RentalDto {
     }
 
 
+    @Getter
+    @Builder
+    public static class CurrentRentalDto {
+        private Long rentalId;       // 대여 기록의 고유 ID
+        private Long notebookId;     // 대여된 노트북 ID
+        private String startDate;    // 대여 시작 날짜
+        private String endDate;      // 반납 예정 날짜
+        private String rentalStatus; // 대여 상태 (예: "대여 중", "미반납" 등)
+    }
+
 }

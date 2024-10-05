@@ -93,4 +93,21 @@ public class RentalService {
 
         rentalRepository.delete(rental);  // 대여 기록 삭제
     }
+
+
+    @Transactional(readOnly = true)
+    public List<RentalDto.CurrentRentalDto> getCurrentUserRentals(String studentNumber) {
+        List<Rental> rentals = rentalRepository.findByUser_StudentNumber(studentNumber);
+
+        // Rental 엔티티를 CurrentRentalDto로 변환
+        return rentals.stream()
+                .map(rental -> RentalDto.CurrentRentalDto.builder()
+                        .rentalId(rental.getRentalId())
+                        .notebookId(rental.getNotebook().getNotebookId())
+                        .startDate(rental.getStartDate().toString())
+                        .endDate(rental.getEndDate().toString())
+                        .rentalStatus("대여 중")  // 필요에 따라 동적으로 설정 가능
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

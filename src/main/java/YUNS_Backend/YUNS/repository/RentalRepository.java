@@ -14,5 +14,8 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     @Query("SELECT r FROM Rental r WHERE r.user.studentNumber = :studentNumber")
     Optional<Rental> findByStudentNumber(@Param("studentNumber") String studentNumber);
 
+    @Query("SELECT r FROM Rental r WHERE r.user.studentNumber = :studentNumber")
+    List<Rental> findByUser_StudentNumber(String studentNumber);
+
     List<Rental> findByUser_UserId(Long userId);
 }
