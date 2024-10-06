@@ -26,7 +26,7 @@ public class Notebook {
     private String model;
 
     @Column(nullable = false)
-    private LocalDate manufactureDate;
+    private String manufactureDate;
 
     @Column(nullable = false)
     private String operatingSystem;

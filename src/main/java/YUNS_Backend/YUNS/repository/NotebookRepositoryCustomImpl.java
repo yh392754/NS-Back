@@ -32,7 +32,7 @@ public class NotebookRepositoryCustomImpl implements NotebookRepositoryCustom{
                         new QNotebookListDto(notebook.notebookId, notebook.model, notebook.rentalStatus)
                 )
                 .from(notebook)
-                .where(filterBy(notebookFilterDto.getFilterBy(), notebookFilterDto.getSelectd()),
+                .where(filterBy(notebookFilterDto.getFilterBy(), notebookFilterDto.getSelected()),
                         RentalStatusEq(notebookFilterDto.isOnlyAvailable()))
                 .orderBy(notebook.notebookId.desc())
                 .offset(pageable.getOffset())
