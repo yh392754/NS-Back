@@ -38,6 +38,8 @@ public class SecurityConfig {
     CustomAccessDeniedHandler customAccessDeniedHandler;
     @Autowired
     CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    @Autowired
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -65,7 +67,7 @@ public class SecurityConfig {
                                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                 .addFilterAt(
-                        this.abstractAuthenticationProcessingFilter(authenticationManager, this.authenticationSuccessHandler()),
+                        this.abstractAuthenticationProcessingFilter(authenticationManager, customAuthenticationSuccessHandler),
                                 UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
                         .logoutUrl("/api/logout")
@@ -97,15 +99,16 @@ public class SecurityConfig {
 
     public AbstractAuthenticationProcessingFilter abstractAuthenticationProcessingFilter(final AuthenticationManager authenticationManager, final AuthenticationSuccessHandler authenticationSuccessHandler) {
 
-        return new LoginAuthenticationFilter(
+        LoginAuthenticationFilter loginFilter = new LoginAuthenticationFilter(
                 "/api/login",
                 authenticationManager,
                 authenticationSuccessHandler
         );
-    }
 
-    public AuthenticationSuccessHandler authenticationSuccessHandler(){
-        return new CustomAuthenticationSuccessHandler();
+        // 로그인 실패 핸들러 추가
+        loginFilter.setAuthenticationFailureHandler(new CustomAuthenticationFailureHandler());
+
+        return loginFilter;
     }
 
 }
