@@ -11,12 +11,14 @@ public class NotebookListDto {
     private long notebookId;
     private String model;
     private RentalStatus rentalStatus;
+    private String os;
 
     @QueryProjection
-    public NotebookListDto(Long notebookId, String model, RentalStatus rentalStatus) {
+    public NotebookListDto(Long notebookId, String model, RentalStatus rentalStatus, String os) {
         this.notebookId = notebookId;
         this.model = model;
         this.rentalStatus = rentalStatus;
+        this.os = os;
     }
 
 

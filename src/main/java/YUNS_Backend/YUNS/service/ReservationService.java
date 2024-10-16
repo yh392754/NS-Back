@@ -60,13 +60,6 @@ public class ReservationService {
 
     public void extend(Long notebookId, String studentNumber){
 
-        Optional<Rental> rental = rentalRepository.findByStudentNumber(studentNumber);
-        if(rental.isEmpty()){ //사용자가 대여중인 노트북이 없다면
-            throw new CustomException(ErrorCode.RENTAL_NOT_FOUND_BY_USER);
-        }else if(!rental.get().getNotebook().getNotebookId().equals(notebookId)){ //연장 요청한 노트북이 대여 중인 노트북이 아니라면
-            throw new CustomException(ErrorCode.DIFFERENT_NOTEBOOK);
-        }
-
         Notebook notebook = notebookRepository.findByNotebookId(notebookId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOTEBOOK_NOT_FOUND));
 

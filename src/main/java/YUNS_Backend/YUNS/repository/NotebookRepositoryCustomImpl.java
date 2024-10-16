@@ -29,7 +29,7 @@ public class NotebookRepositoryCustomImpl implements NotebookRepositoryCustom{
 
         QueryResults<NotebookListDto> results = queryFactory
                 .select(
-                        new QNotebookListDto(notebook.notebookId, notebook.model, notebook.rentalStatus)
+                        new QNotebookListDto(notebook.notebookId, notebook.model, notebook.rentalStatus, notebook.operatingSystem)
                 )
                 .from(notebook)
                 .where(filterBy(notebookFilterDto.getFilterBy(), notebookFilterDto.getSelected()),
