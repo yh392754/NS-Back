@@ -58,7 +58,8 @@ public class SecurityConfig {
                         (auth) -> auth
                                 .requestMatchers("/api/register", "/api/login").permitAll()
                                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                                .requestMatchers("/api/questions/**", "api/rentals/create/**", "api/extends/create/**", "/api/noticeList/**", "/api/logout", "/api/users/**").authenticated()
+                                .requestMatchers("/api/questions/**", "api/rentals/create/**", "api/extends/create/**",
+                                        "/api/noticeList/**", "/api/logout", "/api/users/**").authenticated()
                                 .anyRequest().permitAll()
                 )
                 .exceptionHandling(exceptionHandling ->

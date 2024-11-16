@@ -5,8 +5,6 @@ import YUNS_Backend.YUNS.dto.NotebookRegistRequestDto;
 import YUNS_Backend.YUNS.dto.NotebookFilterDto;
 import YUNS_Backend.YUNS.dto.NotebookListDto;
 import YUNS_Backend.YUNS.entity.Notebook;
-import YUNS_Backend.YUNS.entity.Rental;
-import YUNS_Backend.YUNS.entity.RentalStatus;
 import YUNS_Backend.YUNS.repository.NotebookRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 @Service
