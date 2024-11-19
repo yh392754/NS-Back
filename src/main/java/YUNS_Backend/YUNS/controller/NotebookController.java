@@ -32,7 +32,7 @@ public class NotebookController {
     private final NotebookService notebookService;
 
     @PostMapping(value = "/api/admin/notebooks/create")
-    public ResponseEntity<Object> notebookCreate(@Valid @RequestBody NotebookRegistRequestDto notebookRegistRequestDto, BindingResult bindingResult){
+    public ResponseEntity<Object> notebookCreate(@Valid @ModelAttribute NotebookRegistRequestDto notebookRegistRequestDto, BindingResult bindingResult){
 
         if(bindingResult.hasErrors()){
             throw new CustomException(ErrorCode.NOTEBOOK_INPUT_INVALID);
