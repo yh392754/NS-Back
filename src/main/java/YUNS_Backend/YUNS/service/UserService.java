@@ -24,9 +24,9 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
-    public User registerUser(User user){
+    public void registerUser(User user){
         validateDuplicateUser(user);
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     private void validateDuplicateUser(User user) {

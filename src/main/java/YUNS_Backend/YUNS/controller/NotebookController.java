@@ -32,7 +32,7 @@ public class NotebookController {
     private final NotebookService notebookService;
 
     @PostMapping(value = "/api/admin/notebooks/create")
-    public ResponseEntity<Object> notebookCreate(@Valid @RequestBody NotebookRegistRequestDto notebookRegistRequestDto, BindingResult bindingResult){
+    public ResponseEntity<Object> notebookCreate(@Valid @ModelAttribute NotebookRegistRequestDto notebookRegistRequestDto, BindingResult bindingResult){
 
         if(bindingResult.hasErrors()){
             throw new CustomException(ErrorCode.NOTEBOOK_INPUT_INVALID);
@@ -52,7 +52,7 @@ public class NotebookController {
     }
 
     @PutMapping(value = "/api/admin/notebooks/{notebookId}/update")
-    public ResponseEntity<Object> notebookUpdate(@PathVariable("notebookId") Long notebookId, @RequestBody NotebookRegistRequestDto notebookRegistRequestDto) {
+    public ResponseEntity<Object> notebookUpdate(@PathVariable("notebookId") Long notebookId, @ModelAttribute NotebookRegistRequestDto notebookRegistRequestDto) {
 
         String imageUrl = null;
 
