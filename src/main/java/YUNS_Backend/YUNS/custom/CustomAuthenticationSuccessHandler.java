@@ -4,6 +4,7 @@ import YUNS_Backend.YUNS.entity.User;
 import YUNS_Backend.YUNS.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,17 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         responseData.put("email", user.getEmail());
         responseData.put("phoneNumber", user.getPhoneNumber());
         responseData.put("userRentalStatus", user.isUserRentalStatus());
+
+        String sessionId = request.getSession().getId();
+
+//        Cookie jsessionCookie = new Cookie("JSESSIONID", sessionId);
+//        jsessionCookie.setHttpOnly(true);
+//        jsessionCookie.setSecure(false);
+//        jsessionCookie.setPath("/");
+//        jsessionCookie.setMaxAge(60 * 60);
+//        response.addCookie(jsessionCookie);
+        String cookieValue = "JSESSIONID=" + sessionId + "; Path=/; HttpOnly; Secure=false; SameSite=None";
+        response.setHeader("Set-Cookie", cookieValue);
 
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(new ObjectMapper().writeValueAsString(responseData));
