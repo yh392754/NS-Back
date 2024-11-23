@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
-    // 특정 유저의 질문들을 조회하는 메서드
+    // 특정 유저의 질문들을 조회
     List<Question> findByUser_StudentNumber(String studentNumber);
 }
