@@ -114,11 +114,11 @@ public class QuestionController {
 
     // 1:1 문의 수정
     @PutMapping("/api/questions/{id}/update")
-    public ResponseEntity<QuestionDto> updateQuestion(@PathVariable Long id,
-                                                      @RequestParam(value = "title", required = false) String title,
-                                                      @RequestParam(value = "content", required = false) String content,
-                                                      @RequestParam(value = "image", required = false) MultipartFile image,
-                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<Map<String, String>> updateQuestion(@PathVariable Long id,
+                                                              @RequestParam(value = "title", required = false) String title,
+                                                              @RequestParam(value = "content", required = false) String content,
+                                                              @RequestParam(value = "image", required = false) MultipartFile image,
+                                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Optional<QuestionDto> question = questionService.getQuestionById(id);
 
@@ -132,6 +132,9 @@ public class QuestionController {
                     !userDetails.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ADMIN"))) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
+        } else {
+            // 질문이 없을 경우 404 응답
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         // 이미지 업로드 처리
@@ -148,40 +151,19 @@ public class QuestionController {
                 .date(question.get().getDate())
                 .state(question.get().isState())
                 .answer(question.get().getAnswer())
-                .userStudentNumber(question.get().getUserStudentNumber())  // userStudentNumber로 저장
+                .userStudentNumber(question.get().getUserStudentNumber())  // 작성자 정보 유지
                 .build();
 
         Optional<QuestionDto> updatedQuestion = questionService.updateQuestion(id, updatedDto);
-        return updatedQuestion.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
 
-    // 1:1 문의 삭제
-    @DeleteMapping("/api/questions/{id}/delete")
-    public ResponseEntity<String> deleteQuestion(@PathVariable Long id,
-                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        Optional<QuestionDto> question = questionService.getQuestionById(id);
-
-        // 문의가 없으면 404 응답 반환
-        if (question.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("문의가 존재하지 않습니다.");  // 404 응답
+        if (updatedQuestion.isPresent()) {
+            // 성공 메시지 반환
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "문의가 성공적으로 수정이 완료되었습니다.");
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        // 작성자 검증 - 로그인한 사용자가 관리자이거나 글 작성자와 동일한 학번인지 확인
-        if (question.isPresent()) {
-            String loggedInStudentNumber = userDetails.getUsername();  // 로그인한 사용자의 학번
-            String questionOwnerStudentNumber = question.get().getUserStudentNumber();  // 글 작성자의 학번
-
-            // 작성자가 아니고 관리자가 아니라면 403 에러 반환
-            if (!loggedInStudentNumber.equals(questionOwnerStudentNumber) &&
-                    !userDetails.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ADMIN"))) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();  // 권한 거부
-            }
-        }
-
-        // 작성자가 맞거나 관리자일 경우 삭제 진행
-        questionService.deleteQuestion(id);
-        return ResponseEntity.ok("문의가 성공적으로 삭제되었습니다.");
     }
 
     // 1:1 문의 조회
