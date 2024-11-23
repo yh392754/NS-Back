@@ -81,10 +81,10 @@ public class QuestionController {
 
     // 1:1 문의 작성
     @PostMapping("/api/questions/create")
-    public ResponseEntity<QuestionDto> createQuestion(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                      @RequestParam("title") String title,
-                                                      @RequestParam("content") String content,
-                                                      @RequestParam(value = "image", required = false) MultipartFile image) {
+    public ResponseEntity<Map<String, String>> createQuestion(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                              @RequestParam("title") String title,
+                                                              @RequestParam("content") String content,
+                                                              @RequestParam(value = "image", required = false) MultipartFile image) {
 
         String studentNumber = userDetails.getUsername();
         User user = userService.findUserByStudentNumber(studentNumber);
@@ -92,7 +92,7 @@ public class QuestionController {
         // 이미지 업로드 처리
         String imageUrl = null;
         if (image != null && !image.isEmpty()) {
-            imageUrl = s3Service.uploadFile(image);  // S3에 이미지 업로드
+            imageUrl = s3Service.uploadFile(image); // S3에 이미지 업로드
         }
 
         // QuestionDto 생성
@@ -104,8 +104,12 @@ public class QuestionController {
                 .state(false)
                 .build();
 
-        QuestionDto createdQuestion = questionService.createQuestion(dto, user);
-        return ResponseEntity.ok(createdQuestion);
+        questionService.createQuestion(dto, user);
+
+        // 응답 메시지 반환
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "문의가 성공적으로 등록이 완료되었습니다.");
+        return ResponseEntity.ok(response);
     }
 
     // 1:1 문의 수정
