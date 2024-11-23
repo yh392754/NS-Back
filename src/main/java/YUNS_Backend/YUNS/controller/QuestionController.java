@@ -59,6 +59,7 @@ public class QuestionController {
         Optional<QuestionDto> question = questionService.getQuestionById(id);
 
         if (question.isPresent()) {
+            // 응답 데이터 생성
             Map<String, Object> questionDetails = new HashMap<>();
             questionDetails.put("questionId", question.get().getQuestionId());
             questionDetails.put("title", question.get().getTitle());
@@ -69,13 +70,14 @@ public class QuestionController {
             questionDetails.put("imageUrl", question.get().getImageUrl());
             questionDetails.put("writer", question.get().getUserStudentNumber());
 
+            // 응답 JSON 구조 생성
             Map<String, Object> response = new HashMap<>();
-            response.put("questions", List.of(questionDetails)); // List 형태로 응답 생성
+            response.put("questions", List.of(questionDetails)); // 리스트 형태로 질문 추가
 
             return ResponseEntity.ok(response);
         }
 
-        // 질문이 없는 경우 404 응답
+        // 질문이 없으면 404 반환
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
