@@ -43,6 +43,8 @@ public class QuestionService {
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .imageUrl(dto.getImageUrl())
+                .imageUrl2(dto.getImageUrl2())
+                .imageUrl3(dto.getImageUrl3())
                 .state(false)
                 .date(LocalDateTime.now())
                 .user(user)
@@ -61,6 +63,8 @@ public class QuestionService {
                     .title(dto.getTitle() != null ? dto.getTitle() : existingQuestion.getTitle())
                     .content(dto.getContent() != null ? dto.getContent() : existingQuestion.getContent())
                     .imageUrl(dto.getImageUrl() != null ? dto.getImageUrl() : existingQuestion.getImageUrl())
+                    .imageUrl2(dto.getImageUrl2() != null ? dto.getImageUrl2() : existingQuestion.getImageUrl2())
+                    .imageUrl3(dto.getImageUrl3() != null ? dto.getImageUrl3() : existingQuestion.getImageUrl3())
                     .date(existingQuestion.getDate())
                     .state(existingQuestion.isState())
                     .answer(existingQuestion.getAnswer())
@@ -71,6 +75,7 @@ public class QuestionService {
             return convertToDto(savedQuestion);
         });
     }
+
 
     // 질문 삭제
     public void deleteQuestion(Long questionId) {
@@ -83,10 +88,12 @@ public class QuestionService {
                 .questionId(question.getQuestionId())
                 .title(question.getTitle())
                 .content(question.getContent())
+                .imageUrl(question.getImageUrl())
+                .imageUrl2(question.getImageUrl2())
+                .imageUrl3(question.getImageUrl3())
                 .date(question.getDate())
                 .state(question.isState())
                 .answer(question.getAnswer())
-                .imageUrl(question.getImageUrl())
                 .userStudentNumber(question.getUser().getStudentNumber())
                 .build();
     }

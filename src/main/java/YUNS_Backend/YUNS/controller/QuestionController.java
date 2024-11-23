@@ -44,6 +44,9 @@ public class QuestionController {
                     questionMap.put("writer", question.getUserStudentNumber());
                     questionMap.put("date", question.getDate().toLocalDate().toString());
                     questionMap.put("state", question.isState());
+                    questionMap.put("imageUrl", question.getImageUrl());
+                    questionMap.put("imageUrl2", question.getImageUrl2());
+                    questionMap.put("imageUrl3", question.getImageUrl3());
                     return questionMap;
                 })
                 .collect(Collectors.toList());
@@ -68,6 +71,8 @@ public class QuestionController {
             questionDetails.put("state", question.get().isState());
             questionDetails.put("answer", question.get().getAnswer());
             questionDetails.put("imageUrl", question.get().getImageUrl());
+            questionDetails.put("imageUrl2", question.get().getImageUrl2());
+            questionDetails.put("imageUrl3", question.get().getImageUrl3());
             questionDetails.put("writer", question.get().getUserStudentNumber());
 
             // 응답 JSON 구조 생성
@@ -86,15 +91,20 @@ public class QuestionController {
     public ResponseEntity<Map<String, String>> createQuestion(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                               @RequestParam("title") String title,
                                                               @RequestParam("content") String content,
-                                                              @RequestParam(value = "image", required = false) MultipartFile image) {
+                                                              @RequestParam(value = "images", required = false) List<MultipartFile> images) {
 
         String studentNumber = userDetails.getUsername();
         User user = userService.findUserByStudentNumber(studentNumber);
 
-        // 이미지 업로드 처리
+        // 최대 3개의 이미지 업로드 처리
         String imageUrl = null;
-        if (image != null && !image.isEmpty()) {
-            imageUrl = s3Service.uploadFile(image); // S3에 이미지 업로드
+        String imageUrl2 = null;
+        String imageUrl3 = null;
+
+        if (images != null && !images.isEmpty()) {
+            if (images.size() > 0) imageUrl = s3Service.uploadFile(images.get(0));
+            if (images.size() > 1) imageUrl2 = s3Service.uploadFile(images.get(1));
+            if (images.size() > 2) imageUrl3 = s3Service.uploadFile(images.get(2));
         }
 
         // QuestionDto 생성
@@ -102,6 +112,8 @@ public class QuestionController {
                 .title(title)
                 .content(content)
                 .imageUrl(imageUrl)
+                .imageUrl2(imageUrl2)
+                .imageUrl3(imageUrl3)
                 .date(LocalDateTime.now())
                 .state(false)
                 .build();
@@ -110,50 +122,63 @@ public class QuestionController {
 
         // 응답 메시지 반환
         Map<String, String> response = new HashMap<>();
-        response.put("message", "문의가 성공적으로 등록이 완료되었습니다.");
+        response.put("message", "문의가 성공적으로 등록되었습니다.");
         return ResponseEntity.ok(response);
     }
 
     // 1:1 문의 수정
     @PutMapping("/api/questions/{id}/update")
-    public ResponseEntity<Map<String, String>> updateQuestion(@PathVariable Long id,
-                                                              @RequestParam(value = "title", required = false) String title,
-                                                              @RequestParam(value = "content", required = false) String content,
-                                                              @RequestParam(value = "image", required = false) MultipartFile image,
-                                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<Map<String, String>> updateQuestion(
+            @PathVariable Long id,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "content", required = false) String content,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        // 질문 조회
         Optional<QuestionDto> question = questionService.getQuestionById(id);
-
-        // 작성자 검증 - 로그인한 사용자가 관리자이거나 글 작성자와 동일한 학번인지 확인
-        if (question.isPresent()) {
-            String loggedInStudentNumber = userDetails.getUsername();
-            String questionOwnerStudentNumber = question.get().getUserStudentNumber();
-
-            // 작성자가 아니고 관리자가 아니라면 403 에러 반환
-            if (!loggedInStudentNumber.equals(questionOwnerStudentNumber) &&
-                    !userDetails.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ADMIN"))) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-        } else {
-            // 질문이 없을 경우 404 응답
+        if (question.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        // 이미지 업로드 처리
-        String imageUrl = null;
-        if (image != null && !image.isEmpty()) {
-            imageUrl = s3Service.uploadFile(image);  // S3에 이미지 업로드
+        // 작성자 검증
+        String loggedInStudentNumber = userDetails.getUsername();
+        String questionOwnerStudentNumber = question.get().getUserStudentNumber();
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+
+        if (!loggedInStudentNumber.equals(questionOwnerStudentNumber) && !isAdmin) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 권한 거부
         }
 
-        // QuestionDto 업데이트
+        // 기존 이미지 유지 또는 새 이미지 업로드 처리
+        String imageUrl = question.get().getImageUrl();
+        String imageUrl2 = question.get().getImageUrl2();
+        String imageUrl3 = question.get().getImageUrl3();
+
+        if (images != null && !images.isEmpty()) {
+            if (images.size() > 0) {
+                imageUrl = s3Service.uploadFile(images.get(0));
+            }
+            if (images.size() > 1) {
+                imageUrl2 = s3Service.uploadFile(images.get(1));
+            }
+            if (images.size() > 2) {
+                imageUrl3 = s3Service.uploadFile(images.get(2));
+            }
+        }
+
+        // DTO 업데이트
         QuestionDto updatedDto = QuestionDto.builder()
                 .title(title != null ? title : question.get().getTitle())
                 .content(content != null ? content : question.get().getContent())
-                .imageUrl(imageUrl != null ? imageUrl : question.get().getImageUrl())
+                .imageUrl(imageUrl)
+                .imageUrl2(imageUrl2)
+                .imageUrl3(imageUrl3)
                 .date(question.get().getDate())
                 .state(question.get().isState())
                 .answer(question.get().getAnswer())
-                .userStudentNumber(question.get().getUserStudentNumber())  // 작성자 정보 유지
+                .userStudentNumber(question.get().getUserStudentNumber())
                 .build();
 
         Optional<QuestionDto> updatedQuestion = questionService.updateQuestion(id, updatedDto);
@@ -161,7 +186,7 @@ public class QuestionController {
         if (updatedQuestion.isPresent()) {
             // 성공 메시지 반환
             Map<String, String> response = new HashMap<>();
-            response.put("message", "문의가 성공적으로 수정이 완료되었습니다.");
+            response.put("message", "문의가 성공적으로 수정되었습니다.");
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
