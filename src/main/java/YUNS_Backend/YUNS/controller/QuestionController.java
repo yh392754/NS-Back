@@ -31,10 +31,26 @@ public class QuestionController {
 
     // 1:1 문의 리스트 조회
     @GetMapping("/api/questions/read")
-    public ResponseEntity<List<QuestionDto>> getPaginatedQuestions(@RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<Map<String, Object>> getPaginatedQuestions(@RequestParam(defaultValue = "1") int page) {
         int pageSize = 10;  // 한 페이지에 표시할 항목 수
         List<QuestionDto> paginatedQuestions = questionService.getQuestionsByPage(page, pageSize);
-        return ResponseEntity.ok(paginatedQuestions);
+
+        // 응답을 요구사항에 맞는 형식으로 변환
+        List<Map<String, Object>> questions = paginatedQuestions.stream()
+                .map(question -> {
+                    Map<String, Object> questionMap = new HashMap<>();
+                    questionMap.put("questionId", question.getQuestionId());
+                    questionMap.put("title", question.getTitle());
+                    questionMap.put("writer", question.getUserStudentNumber());
+                    questionMap.put("date", question.getDate().toLocalDate().toString());
+                    questionMap.put("state", question.isState());
+                    return questionMap;
+                })
+                .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("questions", questions);
+        return ResponseEntity.ok(response);
     }
 
     // 1:1 문의 세부 조회
