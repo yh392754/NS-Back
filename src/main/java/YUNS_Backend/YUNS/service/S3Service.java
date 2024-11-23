@@ -23,15 +23,15 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    // S3에 파일을 업로드하고 URL을 반환
+    // S3에 파일을 업로드하고 URL을 반환하는 메서드
     public String uploadFile(MultipartFile file) {
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();  // 파일 이름에 UUID 추가
         File convertedFile = convertMultiPartToFile(file);  // MultipartFile을 File로 변환
-        amazonS3Client.putObject("yunsawsbucket", fileName, convertedFile);  // 파일 업로드
-        return amazonS3Client.getUrl("yunsawsbucket", fileName).toString();  // URL 반환
+        amazonS3Client.putObject("yuns", fileName, convertedFile);  // 파일 업로드
+        return amazonS3Client.getUrl("yuns", fileName).toString();  // URL 반환
     }
 
-    // MultipartFile을 File로 변환
+    // MultipartFile을 File로 변환하는 메서드
     private File convertMultiPartToFile(MultipartFile file) {
         File convFile = new File(file.getOriginalFilename());
         try (FileOutputStream fos = new FileOutputStream(convFile)) {
@@ -51,4 +51,6 @@ public class S3Service {
             e.printStackTrace();
         }
     }
+
+
 }
