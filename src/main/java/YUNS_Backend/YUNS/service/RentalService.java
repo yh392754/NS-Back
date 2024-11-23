@@ -1,10 +1,13 @@
 package YUNS_Backend.YUNS.service;
 
 import YUNS_Backend.YUNS.dto.RentalDto;
+import YUNS_Backend.YUNS.entity.Notebook;
 import YUNS_Backend.YUNS.entity.Rental;
+import YUNS_Backend.YUNS.entity.RentalStatus;
 import YUNS_Backend.YUNS.entity.Reservation;
 import YUNS_Backend.YUNS.exception.CustomException;
 import YUNS_Backend.YUNS.exception.ErrorCode;
+import YUNS_Backend.YUNS.repository.NotebookRepository;
 import YUNS_Backend.YUNS.repository.RentalRepository;
 import YUNS_Backend.YUNS.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ public class RentalService {
 
     private final RentalRepository rentalRepository;
     private final ReservationRepository reservationRepository;
+    private final NotebookRepository notebookRepository;
 
     // 대여 요청 승인
     @Transactional
@@ -28,15 +32,22 @@ public class RentalService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found with id: " + reservationId));
 
+
+        Notebook notebook = reservation.getNotebook();
+
         if (type.equals("RENTAL")) {
             Rental rental = Rental.builder()
                     .user(reservation.getUser())
                     .notebook(reservation.getNotebook())
                     .startDate(LocalDate.now())
                     .endDate(LocalDate.now().plusMonths(1)) // 반납예정 1개월
+                    .rentalStatus(RentalStatus.RENTAL) // 여기에 rentalStatus 추가
                     .build();
 
+            notebook.updateRentalStatus(RentalStatus.RENTAL);
             rentalRepository.save(rental);
+
+
         } else if (type.equalsIgnoreCase("EXTEND")) {
             // 연장 요청 처리
             Rental rental = rentalRepository.findByStudentNumber(reservation.getUser().getStudentNumber())
@@ -49,6 +60,7 @@ public class RentalService {
                     .user(rental.getUser())
                     .startDate(rental.getStartDate())
                     .endDate(rental.getEndDate().plusMonths(1))
+                    .rentalStatus(rental.getRentalStatus())
                     .build();
 
             rentalRepository.save(updatedRental);
@@ -58,6 +70,7 @@ public class RentalService {
 
         reservationRepository.delete(reservation);
     }
+
 
     public List<RentalDto.RentalResponse> getRentalList(Long userId) {
         List<Rental> rentals;
