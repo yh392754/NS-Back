@@ -70,6 +70,7 @@ public class NotebookService {
 
     public void deleteNotebook(Long notebookId){
         Notebook notebook = notebookRepository.findByNotebookId(notebookId).orElseThrow(EntityNotFoundException::new);
+        notebook.getImages().forEach(image -> s3Service.deleteFile(image.getImageUrl()));
         notebookRepository.delete(notebook);
     }
 
