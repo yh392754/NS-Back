@@ -55,9 +55,28 @@ public class QuestionController {
 
     // 1:1 문의 세부 조회
     @GetMapping("/api/questions/{id}/read")
-    public ResponseEntity<QuestionDto> getQuestionById(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> getQuestionById(@PathVariable Long id) {
         Optional<QuestionDto> question = questionService.getQuestionById(id);
-        return question.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+
+        if (question.isPresent()) {
+            Map<String, Object> questionDetails = new HashMap<>();
+            questionDetails.put("questionId", question.get().getQuestionId());
+            questionDetails.put("title", question.get().getTitle());
+            questionDetails.put("content", question.get().getContent());
+            questionDetails.put("date", question.get().getDate().toString());
+            questionDetails.put("state", question.get().isState());
+            questionDetails.put("answer", question.get().getAnswer());
+            questionDetails.put("imageUrl", question.get().getImageUrl());
+            questionDetails.put("writer", question.get().getUserStudentNumber());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("questions", List.of(questionDetails)); // List 형태로 응답 생성
+
+            return ResponseEntity.ok(response);
+        }
+
+        // 질문이 없는 경우 404 응답
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     // 1:1 문의 작성
