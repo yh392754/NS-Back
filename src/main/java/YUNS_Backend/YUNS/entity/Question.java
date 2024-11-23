@@ -35,8 +35,14 @@ public class Question {
     @Column(nullable = true)
     private String answer;
 
-    @Column(nullable = true)
-    private String imageUrl;
+    @Column
+    private String imageUrl;   // 첫 번째 이미지 URL
+
+    @Column
+    private String imageUrl2;  // 두 번째 이미지 URL
+
+    @Column
+    private String imageUrl3;  // 세 번째 이미지 URL
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
