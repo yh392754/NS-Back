@@ -27,8 +27,8 @@ public class S3Service {
     public String uploadFile(MultipartFile file) {
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();  // 파일 이름에 UUID 추가
         File convertedFile = convertMultiPartToFile(file);  // MultipartFile을 File로 변환
-        amazonS3Client.putObject("yunsawsbucket", fileName, convertedFile);  // 파일 업로드
-        return amazonS3Client.getUrl("yunsawsbucket", fileName).toString();  // URL 반환
+        amazonS3Client.putObject("yuns", fileName, convertedFile);  // 파일 업로드
+        return amazonS3Client.getUrl("yuns", fileName).toString();  // URL 반환
     }
 
     // MultipartFile을 File로 변환
