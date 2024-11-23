@@ -38,12 +38,7 @@ public class NotebookController {
             throw new CustomException(ErrorCode.NOTEBOOK_INPUT_INVALID);
         }
 
-        String imageUrl = null;
-        if(notebookRegistRequestDto.getImage() != null && !notebookRegistRequestDto.getImage().isEmpty()){
-            imageUrl = s3Service.uploadFile(notebookRegistRequestDto.getImage());
-        }
-
-        Long notebookId = notebookService.saveNotebook(notebookRegistRequestDto, imageUrl);
+        Long notebookId = notebookService.saveNotebook(notebookRegistRequestDto);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "성공적으로 등록이 완료되었습니다.");
@@ -54,14 +49,8 @@ public class NotebookController {
     @PutMapping(value = "/api/admin/notebooks/{notebookId}/update")
     public ResponseEntity<Object> notebookUpdate(@PathVariable("notebookId") Long notebookId, @ModelAttribute NotebookRegistRequestDto notebookRegistRequestDto) {
 
-        String imageUrl = null;
-
-        if(notebookRegistRequestDto.getImage() != null && !notebookRegistRequestDto.getImage().isEmpty()){
-            imageUrl = s3Service.uploadFile(notebookRegistRequestDto.getImage());
-        }
-
         try{
-            notebookService.updateNotebook(notebookRegistRequestDto, imageUrl, notebookId);
+            notebookService.updateNotebook(notebookRegistRequestDto, notebookId);
         }catch (EntityNotFoundException e){
             throw new CustomException(ErrorCode.NOTEBOOK_NOT_FOUND) ;
         }

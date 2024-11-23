@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Builder
@@ -14,6 +15,6 @@ public class NotebookDetailDto {
     private String manufactureDate;
     private String os;
     private String rentalStatus;
-    private String imgUrl;
+    private List<String> imgUrl;
     private int size;
 }

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,8 +36,8 @@ public class Notebook {
     @Enumerated(EnumType.STRING)
     private RentalStatus rentalStatus;
 
-    @Column(nullable = true)
-    private String notebookImgUrl;
+    @OneToMany(mappedBy = "notebook", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<NotebookImage> images = new ArrayList<>();
 
     @Column(nullable = false)
     private int size;
@@ -44,31 +45,36 @@ public class Notebook {
     @OneToMany(mappedBy = "notebook", fetch = FetchType.LAZY)
     private List<Rental> rentals;
 
-    public static Notebook createNotebook(NotebookRegistRequestDto notebookRegistRequestDto, String imgUrl){
+    public static Notebook createNotebook(String model, String manufactureDate, String os, int size){
 
         Notebook notebook = Notebook.builder()
-                .model(notebookRegistRequestDto.getModel())
-                .manufactureDate(notebookRegistRequestDto.getManufactureDate())
-                .operatingSystem(notebookRegistRequestDto.getOs())
-                .notebookImgUrl(imgUrl)
+                .model(model)
+                .manufactureDate(manufactureDate)
+                .operatingSystem(os)
                 .rentalStatus(RentalStatus.AVAILABLE)
-                .size(notebookRegistRequestDto.getSize())
+                .size(size)
                 .build();
 
         return notebook;
     }
 
-    public void updateNotebook(NotebookRegistRequestDto notebookRegistRequestDto, String imgUrl){
-        this.model = notebookRegistRequestDto.getModel();
-        this.manufactureDate = notebookRegistRequestDto.getManufactureDate();
-        this.operatingSystem = notebookRegistRequestDto.getOs();
-        this.notebookImgUrl = imgUrl;
-        this.size = notebookRegistRequestDto.getSize();
+    public void updateNotebook(String model, String manufactureDate, String os, int size){
+        this.model = model;
+        this.manufactureDate = manufactureDate;
+        this.operatingSystem = os;
+        this.size = size;
     }
 
     public void updateRentalStatus(RentalStatus rentalStatus){
         this.rentalStatus = rentalStatus;
     }
 
+    public void updateImages(List<String> imageUrls) {
+        if (this.images == null) {
+            this.images = new ArrayList<>();
+        }
+        this.images.clear();
+        imageUrls.forEach(url -> this.images.add(new NotebookImage(this, url)));
+    }
 
 }
