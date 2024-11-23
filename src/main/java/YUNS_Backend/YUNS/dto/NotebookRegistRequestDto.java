@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 
 @Setter
 @Getter
@@ -20,7 +22,7 @@ public class NotebookRegistRequestDto {
     @NotBlank
     private String os;
 
-    private MultipartFile image;
+    private List<MultipartFile> images;
 
     @NotNull
     private Integer size;
