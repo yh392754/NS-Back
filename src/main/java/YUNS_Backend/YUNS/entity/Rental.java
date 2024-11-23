@@ -31,13 +31,25 @@ public class Rental {
     @JoinColumn(name = "notebook_id", nullable = false)
     private Notebook notebook;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RentalStatus rentalStatus;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
 
     // 대여 정보 업데이트
-    public void updateRental(RentalDto.RentalRequest rentalRequest) {
-        this.endDate = LocalDate.parse(rentalRequest.getEndDate());
+    public void updateRental(LocalDate startDate, LocalDate endDate, RentalStatus rentalStatus) {
+        if (startDate != null) {
+            this.startDate = startDate;
+        }
+        if (endDate != null) {
+            this.endDate = endDate;
+        }
+        if (rentalStatus != null) {
+            this.rentalStatus = rentalStatus;
+        }
     }
 }

@@ -74,17 +74,26 @@ public class RentalService {
                         .endDate(rental.getEndDate().toString())
                         .userId(rental.getUser().getUserId())
                         .notebookId(rental.getNotebook().getNotebookId())
+                        .rentalStatus(rental.getRentalStatus().name()) // RentalStatus 추가
                         .build())
                 .collect(Collectors.toList());
     }
+
     // 대여 현황 수정
     public void updateRental(Long rentalId, RentalDto.RentalRequest rentalRequest) {
         Rental rental = rentalRepository.findById(rentalId)
                 .orElseThrow(() -> new CustomException(ErrorCode.RENTAL_NOT_FOUND));
 
-        rental.updateRental(rentalRequest);  // 대여 기록 업데이트
-        rentalRepository.save(rental);
+        // DTO에서 변환된 데이터를 사용
+        rental.updateRental(
+                rentalRequest.getParsedStartDate(),
+                rentalRequest.getParsedEndDate(),
+                rentalRequest.getParsedRentalStatus()
+        );
+
+        rentalRepository.save(rental); // 업데이트된 데이터 저장
     }
+
 
     // 대여현황 삭제
     public void deleteRental(Long rentalId) {
