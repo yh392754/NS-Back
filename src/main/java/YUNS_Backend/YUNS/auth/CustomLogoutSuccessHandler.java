@@ -1,4 +1,4 @@
-package YUNS_Backend.YUNS.custom;
+package YUNS_Backend.YUNS.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;

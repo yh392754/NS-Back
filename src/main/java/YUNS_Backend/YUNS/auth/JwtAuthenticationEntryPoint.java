@@ -1,4 +1,4 @@
-package YUNS_Backend.YUNS.custom;
+package YUNS_Backend.YUNS.auth;
 
 import YUNS_Backend.YUNS.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request,

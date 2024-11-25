@@ -5,7 +5,7 @@ import YUNS_Backend.YUNS.entity.User;
 import YUNS_Backend.YUNS.service.QuestionService;
 import YUNS_Backend.YUNS.service.S3Service;
 import YUNS_Backend.YUNS.service.UserService;
-import YUNS_Backend.YUNS.custom.CustomUserDetails;
+import YUNS_Backend.YUNS.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
