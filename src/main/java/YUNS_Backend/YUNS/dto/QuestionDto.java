@@ -18,6 +18,8 @@ public class QuestionDto {
     private LocalDateTime date;
     private boolean state;
     private String answer;
-    private String imageUrl;  // 이미지 URL
-    private String userStudentNumber;  // 작성자의 학번 추가
+    private String imageUrl;   // 첫 번째 이미지 URL
+    private String imageUrl2;  // 두 번째 이미지 URL
+    private String imageUrl3;  // 세 번째 이미지 URL
+    private String userStudentNumber; // 작성자의 학번 추가
 }

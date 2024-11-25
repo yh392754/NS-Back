@@ -30,33 +30,80 @@ public class QuestionController {
 
     // 1:1 문의 리스트 조회
     @GetMapping("/api/questions/read")
-    public ResponseEntity<List<QuestionDto>> getPaginatedQuestions(@RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<Map<String, Object>> getPaginatedQuestions(@RequestParam(defaultValue = "1") int page) {
         int pageSize = 10;  // 한 페이지에 표시할 항목 수
         List<QuestionDto> paginatedQuestions = questionService.getQuestionsByPage(page, pageSize);
-        return ResponseEntity.ok(paginatedQuestions);
+
+        // 응답을 요구사항에 맞는 형식으로 변환
+        List<Map<String, Object>> questions = paginatedQuestions.stream()
+                .map(question -> {
+                    Map<String, Object> questionMap = new HashMap<>();
+                    questionMap.put("questionId", question.getQuestionId());
+                    questionMap.put("title", question.getTitle());
+                    questionMap.put("writer", question.getUserStudentNumber());
+                    questionMap.put("date", question.getDate().toLocalDate().toString());
+                    questionMap.put("state", question.isState());
+                    questionMap.put("imageUrl", question.getImageUrl());
+                    questionMap.put("imageUrl2", question.getImageUrl2());
+                    questionMap.put("imageUrl3", question.getImageUrl3());
+                    return questionMap;
+                })
+                .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("questions", questions);
+        return ResponseEntity.ok(response);
     }
 
     // 1:1 문의 세부 조회
     @GetMapping("/api/questions/{id}/read")
-    public ResponseEntity<QuestionDto> getQuestionById(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> getQuestionById(@PathVariable Long id) {
         Optional<QuestionDto> question = questionService.getQuestionById(id);
-        return question.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+
+        if (question.isPresent()) {
+            // 응답 데이터 생성
+            Map<String, Object> questionDetails = new HashMap<>();
+            questionDetails.put("questionId", question.get().getQuestionId());
+            questionDetails.put("title", question.get().getTitle());
+            questionDetails.put("content", question.get().getContent());
+            questionDetails.put("date", question.get().getDate().toString());
+            questionDetails.put("state", question.get().isState());
+            questionDetails.put("answer", question.get().getAnswer());
+            questionDetails.put("imageUrl", question.get().getImageUrl());
+            questionDetails.put("imageUrl2", question.get().getImageUrl2());
+            questionDetails.put("imageUrl3", question.get().getImageUrl3());
+            questionDetails.put("writer", question.get().getUserStudentNumber());
+
+            // 응답 JSON 구조 생성
+            Map<String, Object> response = new HashMap<>();
+            response.put("questions", List.of(questionDetails)); // 리스트 형태로 질문 추가
+
+            return ResponseEntity.ok(response);
+        }
+
+        // 질문이 없으면 404 반환
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     // 1:1 문의 작성
     @PostMapping("/api/questions/create")
-    public ResponseEntity<QuestionDto> createQuestion(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                      @RequestParam("title") String title,
-                                                      @RequestParam("content") String content,
-                                                      @RequestParam(value = "image", required = false) MultipartFile image) {
+    public ResponseEntity<Map<String, String>> createQuestion(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                              @RequestParam("title") String title,
+                                                              @RequestParam("content") String content,
+                                                              @RequestParam(value = "images", required = false) List<MultipartFile> images) {
 
         String studentNumber = userDetails.getUsername();
         User user = userService.findUserByStudentNumber(studentNumber);
 
-        // 이미지 업로드 처리
+        // 최대 3개의 이미지 업로드 처리
         String imageUrl = null;
-        if (image != null && !image.isEmpty()) {
-            imageUrl = s3Service.uploadFile(image);  // S3에 이미지 업로드
+        String imageUrl2 = null;
+        String imageUrl3 = null;
+
+        if (images != null && !images.isEmpty()) {
+            if (images.size() > 0) imageUrl = s3Service.uploadFile(images.get(0));
+            if (images.size() > 1) imageUrl2 = s3Service.uploadFile(images.get(1));
+            if (images.size() > 2) imageUrl3 = s3Service.uploadFile(images.get(2));
         }
 
         // QuestionDto 생성
@@ -64,84 +111,115 @@ public class QuestionController {
                 .title(title)
                 .content(content)
                 .imageUrl(imageUrl)
+                .imageUrl2(imageUrl2)
+                .imageUrl3(imageUrl3)
                 .date(LocalDateTime.now())
                 .state(false)
                 .build();
 
-        QuestionDto createdQuestion = questionService.createQuestion(dto, user);
-        return ResponseEntity.ok(createdQuestion);
+        questionService.createQuestion(dto, user);
+
+        // 응답 메시지 반환
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "문의가 성공적으로 등록되었습니다.");
+        return ResponseEntity.ok(response);
     }
 
     // 1:1 문의 수정
     @PutMapping("/api/questions/{id}/update")
-    public ResponseEntity<QuestionDto> updateQuestion(@PathVariable Long id,
-                                                      @RequestParam(value = "title", required = false) String title,
-                                                      @RequestParam(value = "content", required = false) String content,
-                                                      @RequestParam(value = "image", required = false) MultipartFile image,
-                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<Map<String, String>> updateQuestion(
+            @PathVariable Long id,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "content", required = false) String content,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        // 질문 조회
         Optional<QuestionDto> question = questionService.getQuestionById(id);
+        if (question.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
-        // 작성자 검증 - 로그인한 사용자가 관리자이거나 글 작성자와 동일한 학번인지 확인
-        if (question.isPresent()) {
-            String loggedInStudentNumber = userDetails.getUsername();
-            String questionOwnerStudentNumber = question.get().getUserStudentNumber();
+        // 작성자 검증
+        String loggedInStudentNumber = userDetails.getUsername();
+        String questionOwnerStudentNumber = question.get().getUserStudentNumber();
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
 
-            // 작성자가 아니고 관리자가 아니라면 403 에러 반환
-            if (!loggedInStudentNumber.equals(questionOwnerStudentNumber) &&
-                    !userDetails.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ADMIN"))) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        if (!loggedInStudentNumber.equals(questionOwnerStudentNumber) && !isAdmin) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 권한 거부
+        }
+
+        // 기존 이미지 유지 또는 새 이미지 업로드 처리
+        String imageUrl = question.get().getImageUrl();
+        String imageUrl2 = question.get().getImageUrl2();
+        String imageUrl3 = question.get().getImageUrl3();
+
+        if (images != null && !images.isEmpty()) {
+            if (images.size() > 0) {
+                imageUrl = s3Service.uploadFile(images.get(0));
+            }
+            if (images.size() > 1) {
+                imageUrl2 = s3Service.uploadFile(images.get(1));
+            }
+            if (images.size() > 2) {
+                imageUrl3 = s3Service.uploadFile(images.get(2));
             }
         }
 
-        // 이미지 업로드 처리
-        String imageUrl = null;
-        if (image != null && !image.isEmpty()) {
-            imageUrl = s3Service.uploadFile(image);  // S3에 이미지 업로드
-        }
-
-        // QuestionDto 업데이트
+        // DTO 업데이트
         QuestionDto updatedDto = QuestionDto.builder()
                 .title(title != null ? title : question.get().getTitle())
                 .content(content != null ? content : question.get().getContent())
-                .imageUrl(imageUrl != null ? imageUrl : question.get().getImageUrl())
+                .imageUrl(imageUrl)
+                .imageUrl2(imageUrl2)
+                .imageUrl3(imageUrl3)
                 .date(question.get().getDate())
                 .state(question.get().isState())
                 .answer(question.get().getAnswer())
-                .userStudentNumber(question.get().getUserStudentNumber())  // userStudentNumber로 저장
+                .userStudentNumber(question.get().getUserStudentNumber())
                 .build();
 
         Optional<QuestionDto> updatedQuestion = questionService.updateQuestion(id, updatedDto);
-        return updatedQuestion.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+
+        if (updatedQuestion.isPresent()) {
+            // 성공 메시지 반환
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "문의가 성공적으로 수정되었습니다.");
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // 1:1 문의 삭제
     @DeleteMapping("/api/questions/{id}/delete")
-    public ResponseEntity<String> deleteQuestion(@PathVariable Long id,
-                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<Map<String, String>> deleteQuestion(@PathVariable Long id,
+                                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Optional<QuestionDto> question = questionService.getQuestionById(id);
 
         // 문의가 없으면 404 응답 반환
         if (question.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("문의가 존재하지 않습니다.");  // 404 응답
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         // 작성자 검증 - 로그인한 사용자가 관리자이거나 글 작성자와 동일한 학번인지 확인
-        if (question.isPresent()) {
-            String loggedInStudentNumber = userDetails.getUsername();  // 로그인한 사용자의 학번
-            String questionOwnerStudentNumber = question.get().getUserStudentNumber();  // 글 작성자의 학번
+        String loggedInStudentNumber = userDetails.getUsername();
+        String questionOwnerStudentNumber = question.get().getUserStudentNumber();
 
-            // 작성자가 아니고 관리자가 아니라면 403 에러 반환
-            if (!loggedInStudentNumber.equals(questionOwnerStudentNumber) &&
-                    !userDetails.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ADMIN"))) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();  // 권한 거부
-            }
+        if (!loggedInStudentNumber.equals(questionOwnerStudentNumber) &&
+                !userDetails.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ADMIN"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 권한 거부
         }
 
         // 작성자가 맞거나 관리자일 경우 삭제 진행
         questionService.deleteQuestion(id);
-        return ResponseEntity.ok("문의가 성공적으로 삭제되었습니다.");
+
+        // 응답 메시지 반환
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "문의가 성공적으로 삭제되었습니다.");
+        return ResponseEntity.ok(response);
     }
 
     // 1:1 문의 조회
