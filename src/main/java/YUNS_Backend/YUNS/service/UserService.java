@@ -1,6 +1,6 @@
 package YUNS_Backend.YUNS.service;
 
-import YUNS_Backend.YUNS.custom.CustomUserDetails;
+import YUNS_Backend.YUNS.auth.CustomUserDetails;
 import YUNS_Backend.YUNS.exception.CustomException;
 import YUNS_Backend.YUNS.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;

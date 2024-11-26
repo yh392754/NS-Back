@@ -12,6 +12,7 @@ public class NotebookDetailDto {
 
     private Long id;
     private String model;
+    private String content;
     private String manufactureDate;
     private String os;
     private String rentalStatus;

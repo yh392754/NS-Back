@@ -1,4 +1,4 @@
-package YUNS_Backend.YUNS.custom;
+package YUNS_Backend.YUNS.auth;
 
 import YUNS_Backend.YUNS.entity.User;
 import org.springframework.security.core.GrantedAuthority;

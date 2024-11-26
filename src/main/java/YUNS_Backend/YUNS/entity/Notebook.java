@@ -26,6 +26,9 @@ public class Notebook {
     @Column(nullable = false)
     private String model;
 
+    @Column(nullable = true)
+    private String content;
+
     @Column(nullable = false)
     private String manufactureDate;
 
@@ -45,10 +48,11 @@ public class Notebook {
     @OneToMany(mappedBy = "notebook", fetch = FetchType.LAZY)
     private List<Rental> rentals;
 
-    public static Notebook createNotebook(String model, String manufactureDate, String os, int size){
+    public static Notebook createNotebook(String model, String content, String manufactureDate, String os, int size){
 
         Notebook notebook = Notebook.builder()
                 .model(model)
+                .content(content)
                 .manufactureDate(manufactureDate)
                 .operatingSystem(os)
                 .rentalStatus(RentalStatus.AVAILABLE)
@@ -58,8 +62,9 @@ public class Notebook {
         return notebook;
     }
 
-    public void updateNotebook(String model, String manufactureDate, String os, int size){
+    public void updateNotebook(String model, String content, String manufactureDate, String os, int size){
         this.model = model;
+        this.content = content;
         this.manufactureDate = manufactureDate;
         this.operatingSystem = os;
         this.size = size;
@@ -69,12 +74,16 @@ public class Notebook {
         this.rentalStatus = rentalStatus;
     }
 
-    public void updateImages(List<String> imageUrls) {
+    public void updateImages(List<String> newImgUrls, List<String> oldImgUrls) {
         if (this.images == null) {
             this.images = new ArrayList<>();
         }
         this.images.clear();
-        imageUrls.forEach(url -> this.images.add(new NotebookImage(this, url)));
+
+        if(newImgUrls != null)
+            newImgUrls.forEach(url -> this.images.add(new NotebookImage(this, url)));
+        if(oldImgUrls != null)
+            oldImgUrls.forEach(url -> this.images.add(new NotebookImage(this, url)));
     }
 
 }

@@ -1,19 +1,17 @@
 package YUNS_Backend.YUNS.config;
 
-import YUNS_Backend.YUNS.custom.*;
-import YUNS_Backend.YUNS.entity.Role;
+import YUNS_Backend.YUNS.auth.*;
 import YUNS_Backend.YUNS.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,51 +25,42 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    CustomLogoutSuccessHandler customLogoutSuccessHandler;
-    @Autowired
-    CustomAccessDeniedHandler customAccessDeniedHandler;
-    @Autowired
-    CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-    @Autowired
-    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final TokenAuthenticationFilter tokenAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        AuthenticationManagerBuilder sharedObject = http.getSharedObject(AuthenticationManagerBuilder.class);
-
-        sharedObject.userDetailsService(userService);
-        AuthenticationManager authenticationManager = sharedObject.build();
-
-        http.authenticationManager(authenticationManager);
-
         http
-                .csrf((auth) -> auth.disable())
+                .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin((form) -> form.disable())
                 .authorizeHttpRequests(
                         (auth) -> auth
+                                .requestMatchers("/api/register", "/api/login").permitAll()
+                                .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                                .requestMatchers("/api/questions/**", "api/rentals/create/**", "api/extends/create/**",
+                                        "/api/noticeList/**", "/api/logout", "/api/users/**").authenticated()
                                 .anyRequest().permitAll()
                 )
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling
-                                .accessDeniedHandler(customAccessDeniedHandler)
-                                .authenticationEntryPoint(customAuthenticationEntryPoint)
-                )
-                .addFilterAt(
-                        this.abstractAuthenticationProcessingFilter(authenticationManager, customAuthenticationSuccessHandler),
-                                UsernamePasswordAuthenticationFilter.class)
-                .logout(logout -> logout
-                        .logoutUrl("/api/logout")
-                        .logoutSuccessHandler(customLogoutSuccessHandler)
-                );
+                .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new TokenExceptionFilter(), tokenAuthenticationFilter.getClass())
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler));
 
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
@@ -93,19 +82,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-
-    public AbstractAuthenticationProcessingFilter abstractAuthenticationProcessingFilter(final AuthenticationManager authenticationManager, final AuthenticationSuccessHandler authenticationSuccessHandler) {
-
-        LoginAuthenticationFilter loginFilter = new LoginAuthenticationFilter(
-                "/api/login",
-                authenticationManager,
-                authenticationSuccessHandler
-        );
-
-        // 로그인 실패 핸들러 추가
-        loginFilter.setAuthenticationFailureHandler(new CustomAuthenticationFailureHandler());
-
-        return loginFilter;
-    }
-
 }

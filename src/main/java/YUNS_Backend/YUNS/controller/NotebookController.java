@@ -1,9 +1,6 @@
 package YUNS_Backend.YUNS.controller;
 
-import YUNS_Backend.YUNS.dto.NotebookDetailDto;
-import YUNS_Backend.YUNS.dto.NotebookRegistRequestDto;
-import YUNS_Backend.YUNS.dto.NotebookFilterDto;
-import YUNS_Backend.YUNS.dto.NotebookListDto;
+import YUNS_Backend.YUNS.dto.*;
 import YUNS_Backend.YUNS.entity.RentalStatus;
 import YUNS_Backend.YUNS.exception.CustomException;
 import YUNS_Backend.YUNS.exception.ErrorCode;
@@ -47,10 +44,10 @@ public class NotebookController {
     }
 
     @PutMapping(value = "/api/admin/notebooks/{notebookId}/update")
-    public ResponseEntity<Object> notebookUpdate(@PathVariable("notebookId") Long notebookId, @ModelAttribute NotebookRegistRequestDto notebookRegistRequestDto) {
+    public ResponseEntity<Object> notebookUpdate(@PathVariable("notebookId") Long notebookId, @ModelAttribute NotebookUpdateRequestDto notebookUpdateRequestDto) {
 
         try{
-            notebookService.updateNotebook(notebookRegistRequestDto, notebookId);
+            notebookService.updateNotebook(notebookUpdateRequestDto, notebookId);
         }catch (EntityNotFoundException e){
             throw new CustomException(ErrorCode.NOTEBOOK_NOT_FOUND) ;
         }

@@ -24,6 +24,9 @@ public enum ErrorCode {
     // 권한 관련 에러 //
     NO_PERMISSION(FORBIDDEN, "AE1", "해당 요청에 대한 권한이 없습니다."),
     LOGIN_INFO_INVALID(UNAUTHORIZED, "AE2", "아이디 혹은 비밀번호가 올바르지 않습니다."),
+    TOKEN_EXPIRED(BAD_REQUEST,"SA7","토큰이 만료되었습니다"),
+    INVALID_TOKEN(UNAUTHORIZED,"SA5","유효하지 않은 토큰입니다"),
+    INVALID_SIGNATURE(UNAUTHORIZED,"SA6","유효하지 않은 서명입니다"),
 
     // 대여 관련 에러 //
     ALREADY_RENTAL(CONFLICT, "RE1", "이미 대여중인 노트북이 있습니다."),

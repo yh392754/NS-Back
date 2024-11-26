@@ -1,4 +1,4 @@
-package YUNS_Backend.YUNS.custom;
+package YUNS_Backend.YUNS.auth;
 
 import YUNS_Backend.YUNS.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,8 +9,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+
 @Component
-public class CustomAccessDeniedHandler implements AccessDeniedHandler {
+public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request,
