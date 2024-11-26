@@ -82,6 +82,10 @@ public class QuestionService {
         questionRepository.deleteById(questionId);
     }
 
+    public Page<QuestionDto> getQuestions(Pageable pageable) {
+        return questionRepository.findAll(pageable)
+                .map(this::convertToDto); // 엔티티를 DTO로 변환
+    }
     // 엔티티를 DTO로 변환
     private QuestionDto convertToDto(Question question) {
         return QuestionDto.builder()

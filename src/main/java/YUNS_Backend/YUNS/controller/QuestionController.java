@@ -7,6 +7,9 @@ import YUNS_Backend.YUNS.service.S3Service;
 import YUNS_Backend.YUNS.service.UserService;
 import YUNS_Backend.YUNS.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,29 +34,26 @@ public class QuestionController {
 
     // 1:1 문의 리스트 조회
     @GetMapping("/api/questions/read")
-    public ResponseEntity<Map<String, Object>> getPaginatedQuestions(@RequestParam(defaultValue = "1") int page) {
-        int pageSize = 10;  // 한 페이지에 표시할 항목 수
-        List<QuestionDto> paginatedQuestions = questionService.getQuestionsByPage(page, pageSize);
+    public ResponseEntity<Page<Map<String, Object>>> getPaginatedQuestions(
+            @PageableDefault(size = 10) Pageable pageable) {
 
-        // 응답을 요구사항에 맞는 형식으로 변환
-        List<Map<String, Object>> questions = paginatedQuestions.stream()
-                .map(question -> {
-                    Map<String, Object> questionMap = new HashMap<>();
-                    questionMap.put("questionId", question.getQuestionId());
-                    questionMap.put("title", question.getTitle());
-                    questionMap.put("writer", question.getUserStudentNumber());
-                    questionMap.put("date", question.getDate().toLocalDate().toString());
-                    questionMap.put("state", question.isState());
-                    questionMap.put("imageUrl", question.getImageUrl());
-                    questionMap.put("imageUrl2", question.getImageUrl2());
-                    questionMap.put("imageUrl3", question.getImageUrl3());
-                    return questionMap;
-                })
-                .collect(Collectors.toList());
+        Page<QuestionDto> questionPage = questionService.getQuestions(pageable);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("questions", questions);
-        return ResponseEntity.ok(response);
+        // QuestionDto를 요구된 응답 형식으로 변환
+        Page<Map<String, Object>> transformedPage = questionPage.map(question -> {
+            Map<String, Object> questionMap = new HashMap<>();
+            questionMap.put("questionId", question.getQuestionId());
+            questionMap.put("title", question.getTitle());
+            questionMap.put("writer", question.getUserStudentNumber());
+            questionMap.put("date", question.getDate().toLocalDate().toString());
+            questionMap.put("state", question.isState());
+            questionMap.put("imageUrl", question.getImageUrl());
+            questionMap.put("imageUrl2", question.getImageUrl2());
+            questionMap.put("imageUrl3", question.getImageUrl3());
+            return questionMap;
+        });
+
+        return ResponseEntity.ok(transformedPage);
     }
 
     // 1:1 문의 세부 조회
