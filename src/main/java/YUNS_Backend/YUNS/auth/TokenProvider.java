@@ -32,6 +32,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static YUNS_Backend.YUNS.auth.TokenValue.*;
@@ -67,10 +68,13 @@ public class TokenProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining());
 
+        String uniqueId = UUID.randomUUID().toString();
+
         return Jwts.builder()
                 .subject(tokenType)
                 .claim("studentNumber", authentication.getName())
                 .claim("role", authorities)
+                .claim("uniqueId", uniqueId)
                 .issuedAt(now)
                 .expiration(expiredDate)
                 .signWith(secretKey, Jwts.SIG.HS512)

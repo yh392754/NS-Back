@@ -9,11 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
-
-@Setter
 @Getter
-public class NotebookRegistRequestDto {
-
+@Setter
+public class NotebookUpdateRequestDto {
     @NotBlank
     private String model;
 
@@ -25,7 +23,9 @@ public class NotebookRegistRequestDto {
     @NotBlank
     private String os;
 
-    private List<MultipartFile> images = new ArrayList<>();;
+    private List<MultipartFile> images = new ArrayList<>();
+
+    private List<String> imageUrls = new ArrayList<>();
 
     @NotNull
     private Integer size;

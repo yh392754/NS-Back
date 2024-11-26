@@ -1,9 +1,6 @@
 package YUNS_Backend.YUNS.service;
 
-import YUNS_Backend.YUNS.dto.NotebookDetailDto;
-import YUNS_Backend.YUNS.dto.NotebookRegistRequestDto;
-import YUNS_Backend.YUNS.dto.NotebookFilterDto;
-import YUNS_Backend.YUNS.dto.NotebookListDto;
+import YUNS_Backend.YUNS.dto.*;
 import YUNS_Backend.YUNS.entity.Notebook;
 import YUNS_Backend.YUNS.entity.NotebookImage;
 import YUNS_Backend.YUNS.repository.NotebookRepository;
@@ -27,6 +24,12 @@ public class NotebookService {
     final S3Service s3Service;
 
     public Long saveNotebook(NotebookRegistRequestDto notebookRegistRequestDto){
+        Notebook notebook = Notebook.createNotebook(notebookRegistRequestDto.getModel(),
+                notebookRegistRequestDto.getContent(),
+                notebookRegistRequestDto.getManufactureDate(),
+                notebookRegistRequestDto.getOs(),
+                notebookRegistRequestDto.getSize());
+
         List<String> imgUrls = null;
 
         if(notebookRegistRequestDto.getImages() != null && !notebookRegistRequestDto.getImages().isEmpty()){
@@ -34,38 +37,40 @@ public class NotebookService {
                     .filter(image -> image.getSize() > 0)
                     .map(image -> s3Service.uploadFile(image))
                     .toList();
-        }
 
-        Notebook notebook = Notebook.createNotebook(notebookRegistRequestDto.getModel(),
-                notebookRegistRequestDto.getManufactureDate(),
-                notebookRegistRequestDto.getOs(),
-                notebookRegistRequestDto.getSize());
-        notebook.updateImages(imgUrls);
+            notebook.updateImages(imgUrls, null);
+        }
 
         notebookRepository.save(notebook);
 
         return notebook.getNotebookId();
     }
 
-    public void updateNotebook(NotebookRegistRequestDto notebookRegistRequestDto, Long notebookId){
+    public void updateNotebook(NotebookUpdateRequestDto notebookUpdateRequestDto, Long notebookId){
         Notebook notebook = notebookRepository.findByNotebookId(notebookId).orElseThrow(EntityNotFoundException::new);
 
-        List<String> imgUrls = null;
+        List<String> newImgUrls = null;
 
-        notebook.getImages().forEach(image -> s3Service.deleteFile(image.getImageUrl()));
+        notebook.getImages().forEach(image -> {
+            String imageUrl = image.getImageUrl();
+            if (!notebookUpdateRequestDto.getImageUrls().contains(imageUrl))
+                s3Service.deleteFile(imageUrl);
+        });
 
-        if(notebookRegistRequestDto.getImages() != null && !notebookRegistRequestDto.getImages().isEmpty()) {
-            imgUrls = notebookRegistRequestDto.getImages().stream()
+        if(notebookUpdateRequestDto.getImages() != null && !notebookUpdateRequestDto.getImages().isEmpty()) {
+            newImgUrls = notebookUpdateRequestDto.getImages().stream()
                     .filter(image -> image.getSize() > 0)
                     .map(image -> s3Service.uploadFile(image))
                     .toList();
         }
 
-        notebook.updateNotebook(notebookRegistRequestDto.getModel(),
-                notebookRegistRequestDto.getManufactureDate(),
-                notebookRegistRequestDto.getOs(),
-                notebookRegistRequestDto.getSize());
-        notebook.updateImages(imgUrls);
+        notebook.updateNotebook(notebookUpdateRequestDto.getModel(),
+                notebookUpdateRequestDto.getContent(),
+                notebookUpdateRequestDto.getManufactureDate(),
+                notebookUpdateRequestDto.getOs(),
+                notebookUpdateRequestDto.getSize());
+
+        notebook.updateImages(newImgUrls, notebookUpdateRequestDto.getImageUrls());
     }
 
     public void deleteNotebook(Long notebookId){
@@ -101,6 +106,7 @@ public class NotebookService {
         NotebookDetailDto notebookDetailDto = NotebookDetailDto.builder()
                 .id(notebook.getNotebookId())
                 .model(notebook.getModel())
+                .content(notebook.getContent())
                 .manufactureDate(notebook.getManufactureDate())
                 .os(notebook.getOperatingSystem())
                 .rentalStatus(notebook.getRentalStatus().toString())
