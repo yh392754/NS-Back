@@ -27,6 +27,7 @@ public enum ErrorCode {
     TOKEN_EXPIRED(BAD_REQUEST,"SA7","토큰이 만료되었습니다"),
     INVALID_TOKEN(UNAUTHORIZED,"SA5","유효하지 않은 토큰입니다"),
     INVALID_SIGNATURE(UNAUTHORIZED,"SA6","유효하지 않은 서명입니다"),
+    EXIST_ACCESSTOKEN_BLACKLIST(HttpStatus.CONFLICT,"SAT1","이미 로그아웃한 사용자입니다."),
 
     // 대여 관련 에러 //
     ALREADY_RENTAL(CONFLICT, "RE1", "이미 대여중인 노트북이 있습니다."),
