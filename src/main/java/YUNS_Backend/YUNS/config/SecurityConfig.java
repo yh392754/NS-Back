@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .formLogin((form) -> form.disable())
                 .authorizeHttpRequests(
                         (auth) -> auth
-                                .requestMatchers("/api/register", "/api/login").permitAll()
+                                .requestMatchers("/api/register", "/api/login", "/api/createAdmin").permitAll()
                                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                                 .requestMatchers("/api/questions/**", "api/rentals/create/**", "api/extends/create/**",
                                         "/api/noticeList/**", "/api/logout", "/api/users/**").authenticated()

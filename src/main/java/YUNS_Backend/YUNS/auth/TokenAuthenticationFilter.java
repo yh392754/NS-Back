@@ -45,7 +45,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 
         AntPathMatcher pathMatcher = new AntPathMatcher();
-        String[] excludePath = {"/", "/api/register", "/api/login"};
+        String[] excludePath = {"/", "/api/register", "/api/login", "/api/createAdmin"};
         String path = request.getRequestURI();
 
         for (String pattern : excludePath) {

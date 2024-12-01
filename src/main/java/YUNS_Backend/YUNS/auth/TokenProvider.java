@@ -2,6 +2,7 @@ package YUNS_Backend.YUNS.auth;
 
 import YUNS_Backend.YUNS.entity.User;
 import YUNS_Backend.YUNS.exception.CustomException;
+import YUNS_Backend.YUNS.redis.BlackListRepository;
 import YUNS_Backend.YUNS.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -48,6 +49,7 @@ public class TokenProvider {
     private String key;
     private SecretKey secretKey;
     private final UserRepository userRepository;
+    private final BlackListRepository blackListRepository;
 
     @PostConstruct
     private void setSecretKey() {
@@ -98,14 +100,13 @@ public class TokenProvider {
     public boolean validateToken(String token) {
         if (StringUtils.hasText(token)) {
             parseClaims(token);
+
+            if (blackListRepository.existsByAccessToken(token)) {
+                throw new CustomException(EXIST_ACCESSTOKEN_BLACKLIST);
+            }
             return true;
         }
         return false;
-    }
-
-    public Date extractTime(String accessToken) {
-
-        return parseClaims(accessToken).getExpiration();
     }
 
     public Claims parseClaims(String token) {
@@ -127,23 +128,5 @@ public class TokenProvider {
             return null;
         }
         return token.substring(TokenValue.TOKEN_PREFIX.length());
-    }
-
-    private String resolveTokenInCookie(String token) {
-        if (ObjectUtils.isEmpty(token)) {
-            return null;
-        }
-        return token;
-    }
-
-    public Long calculateTimeLeft(String token) {
-        Instant expirationTime = extractTime(token).toInstant();
-        Instant now = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
-        return Duration.between(now, expirationTime).getSeconds();
-    }
-
-    public boolean isRotateToken(String refreshToken) {
-        Instant issuedInstant = parseClaims(refreshToken).getIssuedAt().toInstant();
-        return Instant.now().isAfter(issuedInstant.plus(24, ChronoUnit.HOURS));
     }
 }
