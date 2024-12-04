@@ -30,14 +30,16 @@ public class RentalService {
     public ReservationDto.ReservationResponse getAllRentalRequests() {
         List<Reservation> reservations = reservationRepository.findAllWithDetails(); // Lazy 로딩 문제 해결
 
-        // DTO로 변환
         List<ReservationDto.ReservationRequest> reservationRequests = reservations.stream()
                 .map(reservation -> ReservationDto.ReservationRequest.builder()
                         .reservationId(reservation.getReservationId())
                         .requestDate(reservation.getRequestDate().toString())
                         .userId(reservation.getUser().getUserId())
                         .name(reservation.getUser().getName())
+                        .studentNumber(reservation.getUser().getStudentNumber()) // 학번 추가
+                        .phoneNumber(reservation.getUser().getPhoneNumber())     // 연락처 추가
                         .notebookId(reservation.getNotebook().getNotebookId())
+                        .notebookModel(reservation.getNotebook().getModel()) // 노트북 모델명 추가
                         .build())
                 .collect(Collectors.toList());
 

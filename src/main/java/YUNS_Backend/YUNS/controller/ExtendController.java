@@ -26,7 +26,7 @@ public class ExtendController {
 
     @GetMapping("/extend")
     public ResponseEntity<ReservationDto.ReservationResponse> getExtendRequests() {
-        List<Reservation> reservations = reservationRepository.findAll();
+        List<Reservation> reservations = reservationRepository.findAllWithDetails(); // Lazy 로딩 문제 해결
 
         List<ReservationDto.ReservationRequest> extendRequests = reservations.stream()
                 .filter(reservation -> reservation.getType() == Type.EXTEND)
