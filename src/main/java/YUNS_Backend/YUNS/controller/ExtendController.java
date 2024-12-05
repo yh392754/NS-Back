@@ -35,7 +35,10 @@ public class ExtendController {
                         .requestDate(reservation.getRequestDate().toString())
                         .userId(reservation.getUser().getUserId())
                         .name(reservation.getUser().getName())
+                        .studentNumber(reservation.getUser().getStudentNumber())
+                        .phoneNumber(reservation.getUser().getPhoneNumber())
                         .notebookId(reservation.getNotebook().getNotebookId())
+                        .notebookModel(reservation.getNotebook().getModel())
                         .build())
                 .collect(Collectors.toList());
 
