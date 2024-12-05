@@ -82,7 +82,7 @@ public class RentalService {
                     .user(rental.getUser())
                     .startDate(rental.getStartDate())
                     .endDate(rental.getEndDate().plusMonths(1))
-                    .rentalStatus(rental.getRentalStatus())
+                    .rentalStatus(RentalStatus.RENTAL)
                     .build();
 
             rentalRepository.save(updatedRental);
