@@ -33,7 +33,6 @@ public class NoticeService {
 
     public Page<NoticeDto> getAllNotices(Pageable pageable) {
         Page<Notice> notices = noticeRepository.findAll(pageable);
-
         // Lazy 로딩 문제를 방지하기 위해 모든 데이터를 명시적으로 초기화
         notices.forEach(notice -> notice.getImages().size());
 
